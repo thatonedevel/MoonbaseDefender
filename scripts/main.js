@@ -1,8 +1,14 @@
 // object for game states
-GameStates = 
+let GameStates = 
 {
     TITLE: 1,
     GAMEOVER: 2
+};
+
+// all gameobjects are to be stored here
+let gameObjectsCollection = 
+{
+    
 };
 
 function main()
@@ -18,6 +24,9 @@ function main()
             update: update,
         }
     };
+
+    // create phaser game
+    let moonbaseDefender = new Phaser.Game(config);
 }
 
 // game functions
