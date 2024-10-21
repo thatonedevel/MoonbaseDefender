@@ -10,4 +10,4 @@
     - MORE WILL BE ADDED
 */
 
-let levels = [];
+let LEVELS = [];
