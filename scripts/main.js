@@ -10,7 +10,8 @@ let gameObjectsCollection =
 {
     turrets: [],
     enemies: [],
-    board: []
+    board: [],
+    projectiles: []
 };
 
 function main()
@@ -45,6 +46,21 @@ function preload()
 function update()
 {
     // main game loop goes here
+    // call update on all game objects
+    for (let i = 0; i < gameObjectsCollection.turrets.length; i++)
+    {
+        gameObjectsCollection.turrets[i].update();
+    }
+
+    for (let i = 0; i < gameObjectsCollection.enemies.length; i++)
+    {
+        gameObjectsCollection.enemies[i].update();
+    }
+
+    for (let i = 0; i < gameObjectsCollection.projectiles.length; i++)
+    {
+        gameObjectsCollection.projectiles[i].update();
+    }
 }
 
 window.addEventListener("load", main);
