@@ -63,4 +63,9 @@ function update()
     }
 }
 
+function createGameBoard()
+{
+    
+}
+
 window.addEventListener("load", main);
