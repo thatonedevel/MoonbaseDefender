@@ -8,7 +8,9 @@ let GameStates =
 // all gameobjects are to be stored here
 let gameObjectsCollection = 
 {
-    
+    turrets: [],
+    enemies: [],
+    board: []
 };
 
 function main()
