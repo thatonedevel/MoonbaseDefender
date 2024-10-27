@@ -20,7 +20,7 @@ function main()
     {
         width: 800,
         height: 600,
-        scence: 
+        scene: 
         {
             create: create,
             preload: preload,
@@ -41,6 +41,21 @@ function create()
 function preload()
 {
     // load game assets
+    // tiles
+    this.load.image("../assets/sprites/tiles/tilePlaceableA.png", "tilePlaceableA");
+    this.load.image("../assets/sprites/tiles/tilePlaceableB.png", "tilePlaceableB");
+
+    this.load.image("../assets/sprites/tiles/tileTrackCrossA.png", "tileTrackCrossA");
+    this.load.image("../assets/sprites/tiles/tileTrackCrossB.png", "tileTrackCrossB");
+
+    this.load.image("../assets/sprites/tiles/tileTrackCurveLeftA.png", "tileTrackCurveLeftA");
+    this.load.image("../assets/sprites/tiles/tileTrackCurveLeftB.png", "tileTrackCurveLeftB");
+
+    this.load.image("../assets/sprites/tiles/tileTrackCurveRightA.png", "tileTrackCurveRightA");
+    this.load.image("../assets/sprites/tiles/tileTrackCurveRightB.png", "tileTrackCurveRightB");
+
+    this.load.image("../assets/sprites/tiles/tileTrackStraightA.png", "tileTrackStraightA");
+    this.load.image("../assets/sprites/tiles/tileTrackStraightA.png", "tileTrackStraightA");
 }
 
 function update()
