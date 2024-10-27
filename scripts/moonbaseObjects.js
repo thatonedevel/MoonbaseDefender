@@ -23,6 +23,7 @@ class Tile extends Phaser.GameObjects.Sprite
         super(scene, tileX, tileY, texture)
         this.occupant = null;
         this.isTurretSpace = forPlayer;
+        this.nextTile = null;
     }
 }
 
@@ -46,6 +47,6 @@ class BasicProjectile extends BaseObject
 {
     constructor(originX, originY)
     {
-        
+
     }
 }
