@@ -1,3 +1,5 @@
+const { FacebookInstantGamesLeaderboard } = require("phaser");
+
 // object for game states
 let GameStates = 
 {
@@ -75,9 +77,44 @@ function update()
     }
 }
 
-function createGameBoard()
+function loadLevel(levelIndex)
 {
-    
+    // clear out level data
+    for (let turretIndex = 0; turretIndex < gameObjectsCollection.turrets.length; turretIndex++)
+    {
+        gameObjectsCollection.turrets[turretIndex].setActive(false);
+        gameObjectsCollection.turrets[turretIndex].setVisible(false);
+    }
+
+    // clear the array
+    gameObjectsCollection.turrets.length = 0;
+
+    for (let enemyIndex = 0; enemyIndex < gameObjectsCollection.enemies.length; enemyIndex++)
+    {
+        gameObjectsCollection.enemies[enemyIndex].setActive(false);
+        gameObjectsCollection.enemies[enemyIndex].setVisible(false);
+    }
+
+    gameObjectsCollection.enemies.length = 0;
+
+    for (let boardTileIndex = 0; boardTileIndex < gameObjectsCollection.board.length; boardTileIndex++)
+    {
+        gameObjectsCollection.board[boardTileIndex].setActive(false);
+        gameObjectsCollection.board[boardTileIndex].setVisible(false);
+    }
+
+    gameObjectsCollection.board.length = 0;
+
+    for (let projIndex = 0; projIndex < gameObjectsCollection.projectiles.length; projIndex++)
+    {
+        gameObjectsCollection.projectiles[projIndex].setActive(false);
+        gameObjectsCollection.projectiles[projIndex].setVisible(false);
+    }
+
+    gameObjectsCollection.projectiles.length = 0;
+
+    let level = LEVELS[levelIndex];
+    //
 }
 
 window.addEventListener("load", main);
