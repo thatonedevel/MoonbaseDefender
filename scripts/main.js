@@ -48,11 +48,8 @@ function preload()
     this.load.image("../assets/sprites/tiles/tileTrackCrossA.png", "tileTrackCrossA");
     this.load.image("../assets/sprites/tiles/tileTrackCrossB.png", "tileTrackCrossB");
 
-    this.load.image("../assets/sprites/tiles/tileTrackCurveLeftA.png", "tileTrackCurveLeftA");
-    this.load.image("../assets/sprites/tiles/tileTrackCurveLeftB.png", "tileTrackCurveLeftB");
-
-    this.load.image("../assets/sprites/tiles/tileTrackCurveRightA.png", "tileTrackCurveRightA");
-    this.load.image("../assets/sprites/tiles/tileTrackCurveRightB.png", "tileTrackCurveRightB");
+    this.load.image("../assets/sprites/tiles/tileTrackCurveA.png", "tileTrackCurveA");
+    this.load.image("../assets/sprites/tiles/tileTrackCurveB.png", "tileTrackCurveB");
 
     this.load.image("../assets/sprites/tiles/tileTrackStraightA.png", "tileTrackStraightA");
     this.load.image("../assets/sprites/tiles/tileTrackStraightA.png", "tileTrackStraightA");
