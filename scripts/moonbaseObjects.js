@@ -39,7 +39,7 @@ class BasicEnemy extends BaseObject
 {
     constructor()
     {
-
+        
     }
 }
 
