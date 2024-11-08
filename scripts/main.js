@@ -1,4 +1,5 @@
-const { FacebookInstantGamesLeaderboard } = require("phaser");
+const COLUMNS = 16;
+const ROWS = 9;
 
 // object for game states
 let GameStates = 
@@ -12,7 +13,17 @@ let gameObjectsCollection =
 {
     turrets: [],
     enemies: [],
-    board: [],
+    board: [
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+    ],
     projectiles: []
 };
 
@@ -77,8 +88,14 @@ function update()
     }
 }
 
-function loadLevel(levelIndex)
+function loadLevel(levelIndex, scene)
 {
+    let tileX = 64;
+    let tileY = 64;
+    let tileCount = 0;
+    let currentVariant = "A";
+    let newTile;
+
     // clear out level data
     for (let turretIndex = 0; turretIndex < gameObjectsCollection.turrets.length; turretIndex++)
     {
@@ -103,7 +120,7 @@ function loadLevel(levelIndex)
         gameObjectsCollection.board[boardTileIndex].setVisible(false);
     }
 
-    gameObjectsCollection.board.length = 0;
+    gameObjectsCollection.board = [[], [], [], [], [], [], [], [], []];
 
     for (let projIndex = 0; projIndex < gameObjectsCollection.projectiles.length; projIndex++)
     {
@@ -114,7 +131,53 @@ function loadLevel(levelIndex)
     gameObjectsCollection.projectiles.length = 0;
 
     let level = LEVELS[levelIndex];
-    //
+    // loop through and place tiles
+    for (let row = 0; row < ROWS; row++)
+    {
+        for (let column = 0; column < COLUMNS; column++)
+        {
+            tileNo = level[row][column];
+
+            if (tileCount % 2 == 0)
+                currentVariant = "A";
+            else
+                currentVariant = "B";
+            
+            tileCount++;
+
+            switch(tileNo)
+            {
+                case 0:
+                    // empty tile
+                    newTile = new Tile(scene, tileX, tileY, "tilePlaceable" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    break;
+            
+                case 1:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
+                    gameObjectsCollectiion.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x:0, y:1};
+                    break;
+
+                case 2:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x:0, y:-1};
+                    break;
+                
+                case 3:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: 1, y:0};
+                    break;
+                case 4:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: 0, y:1};
+                    break;
+            }
+        }
+    }
 }
 
 window.addEventListener("load", main);
