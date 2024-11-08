@@ -23,7 +23,8 @@ class Tile extends Phaser.GameObjects.Sprite
         super(scene, tileX, tileY, texture)
         this.occupant = null;
         this.isTurretSpace = forPlayer;
-        this.nextTile = null;
+        this.nextTileTranslation = null;
+        scene.add.existing(this);
     }
 }
 
