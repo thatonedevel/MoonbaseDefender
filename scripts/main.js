@@ -49,6 +49,7 @@ function main()
 function create()
 {
     // create base game objects
+    loadLevel(0, this);
 }
 
 function preload()
@@ -144,12 +145,11 @@ function loadLevel(levelIndex, scene)
                 currentVariant = "B";
             
             tileCount++;
-
             switch(tileNo)
             {
                 case 0:
                     // empty tile
-                    newTile = new Tile(scene, tileX, tileY, "tilePlaceable" + currentVariant);
+                    newTile = new Tile(scene, tileX, tileY, "tilePlaceable" + currentVariant, true);
                     gameObjectsCollection.board[row].push(newTile);
                     break;
             
@@ -175,8 +175,57 @@ function loadLevel(levelIndex, scene)
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 0, y:1};
                     break;
+                case 5:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: -1, y: 0};
+                    break;
+                case 6:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: 1, y:0};
+                    break;
+                case 7:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: 0, y: -1};
+                    break;
+                case 8:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: 1, y:0};
+                    break;
+                case 9:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: 0, y:1};
+                    break;
+                case 10:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x:0, y:1};
+                    break;
+                case 11:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: 1, y:0};
+                    break;
+                case 12:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurrent" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: 0, y: -1};
+                    break;
+                case 13:
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurrent" + currentVariant);
+                    gameObjectsCollection.board[row].push(newTile);
+                    newTile.nextTileTranslation = {x: 1, y:0};
+                    break;
             }
+
+            tileX += 128;
         }
+        tileX = 64;
+        tileY += 128;
     }
 }
 
