@@ -18,7 +18,7 @@ class BaseObject extends Phaser.GameObjects.Sprite
 
 class Tile extends Phaser.GameObjects.Sprite
 {
-    constructor(scene, tileX, tileY, texture, forPlayer)
+    constructor(scene, tileX, tileY, texture, forPlayer = false)
     {
         super(scene, tileX, tileY, texture)
         this.occupant = null;
