@@ -35,9 +35,9 @@ function main()
         height: 600,
         scene: 
         {
-            create: create,
-            preload: preload,
-            update: update,
+            create: _create,
+            preload: _preload,
+            update: _update,
         }
     };
 
@@ -46,30 +46,36 @@ function main()
 }
 
 // game functions
-function create()
+function _create()
 {
     // create base game objects
     loadLevel(0, this);
 }
 
-function preload()
+function _preload()
 {
+    // add loader evt listeners
+    console.log("Started loading files");
+    this.load.on("addfile", fileAddedToLoadQueueListener);
+    this.load.on("load", fileLoadedListener);
+    this.load.on("loaderror", fileLoadFailListener);
+
     // load game assets
     // tiles
-    this.load.image("../assets/sprites/tiles/tilePlaceableA.png", "tilePlaceableA");
-    this.load.image("../assets/sprites/tiles/tilePlaceableB.png", "tilePlaceableB");
+    this.load.image("tilePlaceableA", "../assets/sprites/tiles/tilePlaceableA.png");
+    this.load.image("tilePlaceableB", "../assets/sprites/tiles/tilePlaceableB.png");
 
-    this.load.image("../assets/sprites/tiles/tileTrackCrossA.png", "tileTrackCrossA");
-    this.load.image("../assets/sprites/tiles/tileTrackCrossB.png", "tileTrackCrossB");
+    this.load.image("tileTrackCrossA", "../assets/sprites/tiles/tileTrackCrossA.png");
+    this.load.image("tileTrackCrossB", "../assets/sprites/tiles/tileTrackCrossB.png");
 
-    this.load.image("../assets/sprites/tiles/tileTrackCurveA.png", "tileTrackCurveA");
-    this.load.image("../assets/sprites/tiles/tileTrackCurveB.png", "tileTrackCurveB");
+    this.load.image("tileTrackCurveA", "../assets/sprites/tiles/tileTrackCurveA.png");
+    this.load.image("tileTrackCurveB", "../assets/sprites/tiles/tileTrackCurveB.png");
 
-    this.load.image("../assets/sprites/tiles/tileTrackStraightA.png", "tileTrackStraightA");
-    this.load.image("../assets/sprites/tiles/tileTrackStraightA.png", "tileTrackStraightA");
+    this.load.image("tileTrackStraightA", "../assets/sprites/tiles/tileTrackStraightA.png");
+    this.load.image("tileTrackStraightB", "../assets/sprites/tiles/tileTrackStraightB.png");
 }
 
-function update()
+function _update()
 {
     // main game loop goes here
     // call update on all game objects
@@ -117,8 +123,11 @@ function loadLevel(levelIndex, scene)
 
     for (let boardTileIndex = 0; boardTileIndex < gameObjectsCollection.board.length; boardTileIndex++)
     {
-        gameObjectsCollection.board[boardTileIndex].setActive(false);
-        gameObjectsCollection.board[boardTileIndex].setVisible(false);
+        for (let col = 0; col < gameObjectsCollection.board[boardTileIndex].length; col++)
+        {
+            gameObjectsCollection.board[boardTileIndex][col].setActive(false);
+            gameObjectsCollection.board[boardTileIndex][col].setVisible(false)
+        }
     }
 
     gameObjectsCollection.board = [[], [], [], [], [], [], [], [], []];
@@ -155,7 +164,7 @@ function loadLevel(levelIndex, scene)
             
                 case 1:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
-                    gameObjectsCollectiion.board[row].push(newTile);
+                    gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x:0, y:1};
                     break;
 
@@ -169,6 +178,7 @@ function loadLevel(levelIndex, scene)
                     newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 1, y:0};
+                    newTile.angle = 90;
                     break;
                 case 4:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
@@ -179,11 +189,13 @@ function loadLevel(levelIndex, scene)
                     newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: -1, y: 0};
+                    newTile.angle = 90;
                     break;
                 case 6:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 1, y:0};
+                    newTile.angle = 90;
                     break;
                 case 7:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
@@ -199,11 +211,13 @@ function loadLevel(levelIndex, scene)
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 0, y:1};
+                    newTile.angle = 270;
                     break;
                 case 10:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x:0, y:1};
+                    newTile.angle = 90;
                     break;
                 case 11:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
@@ -214,11 +228,13 @@ function loadLevel(levelIndex, scene)
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurrent" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 0, y: -1};
+                    newTile.angle = 180;
                     break;
                 case 13:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurrent" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 1, y:0};
+                    newTile.angle = 270;
                     break;
             }
 
@@ -227,6 +243,21 @@ function loadLevel(levelIndex, scene)
         tileX = 64;
         tileY += 128;
     }
+}
+
+function fileAddedToLoadQueueListener(key, type, loader, file)
+{
+    console.log("File ", file, " added to load queue with key ", key);
+}
+
+function fileLoadFailListener(file)
+{
+    console.warn("File ", file, " could not be loaded");
+}
+
+function fileLoadedListener(file)
+{
+    console.log("File ", file, " loaded successfully");
 }
 
 window.addEventListener("load", main);
