@@ -31,8 +31,8 @@ function main()
 {
     let config = 
     {
-        width: 1600,
-        height: 900,
+        width: 1024,
+        height: 576,
         scene: 
         {
             create: _create,
@@ -97,8 +97,8 @@ function _update()
 
 function loadLevel(levelIndex, scene)
 {
-    let tileX = 64;
-    let tileY = 64;
+    let tileX = 32;
+    let tileY = 32;
     let tileCount = 0;
     let currentVariant = "A";
     let newTile;
@@ -148,7 +148,7 @@ function loadLevel(levelIndex, scene)
         {
             tileNo = level[row][column];
 
-            if (tileCount % 2 == 0)
+            if ((tileCount + row) % 2 == 0)
                 currentVariant = "A";
             else
                 currentVariant = "B";
@@ -206,12 +206,12 @@ function loadLevel(levelIndex, scene)
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 1, y:0};
+                    newTile.angle = 180;
                     break;
                 case 9:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 0, y:1};
-                    newTile.angle = 270;
                     break;
                 case 10:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
@@ -225,23 +225,23 @@ function loadLevel(levelIndex, scene)
                     newTile.nextTileTranslation = {x: 1, y:0};
                     break;
                 case 12:
-                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurrent" + currentVariant);
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 0, y: -1};
-                    newTile.angle = 180;
+                    newTile.angle = 90;
                     break;
                 case 13:
-                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurrent" + currentVariant);
+                    newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x: 1, y:0};
                     newTile.angle = 270;
                     break;
             }
 
-            tileX += 128;
+            tileX += 64;
         }
-        tileX = 64;
-        tileY += 128;
+        tileX = 32;
+        tileY += 64;
     }
 }
 
