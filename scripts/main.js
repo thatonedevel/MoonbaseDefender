@@ -161,7 +161,6 @@ function loadLevel(levelIndex, scene)
                     newTile = new Tile(scene, tileX, tileY, "tilePlaceable" + currentVariant, true);
                     gameObjectsCollection.board[row].push(newTile);
                     break;
-            
                 case 1:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
