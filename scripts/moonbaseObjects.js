@@ -24,6 +24,7 @@ class Tile extends Phaser.GameObjects.Sprite
         this.occupant = null;
         this.isTurretSpace = forPlayer;
         this.nextTileTranslation = null;
+        //this.setScale(0.5, 0.5);
         scene.add.existing(this);
     }
 }
