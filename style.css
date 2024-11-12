@@ -8,3 +8,14 @@ body
 {
     background-color: #ffffff;
 }
+
+span .buildables
+{
+    align-items: left;
+    display: float;
+}
+
+button.turret
+{
+    display: block;
+}
