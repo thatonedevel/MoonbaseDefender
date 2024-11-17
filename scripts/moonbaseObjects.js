@@ -76,6 +76,7 @@ class Tile extends Phaser.GameObjects.Sprite
 
 class Buildable extends BaseObject
 {
+    static cost = 0;
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos);
@@ -84,6 +85,7 @@ class Buildable extends BaseObject
 
 class SolarPanel extends Buildable
 {
+    static cost = 25;
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos)
