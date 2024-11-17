@@ -8,6 +8,13 @@ let GameStates =
     GAMEOVER: 2
 };
 
+// input object
+const MoonbaseInput = 
+{
+    mouse: null,
+    directionKeys: null,
+};
+
 // all gameobjects are to be stored here
 let gameObjectsCollection = 
 {
@@ -73,6 +80,9 @@ function _preload()
 
     this.load.image("tileTrackStraightA", "../assets/sprites/tiles/tileTrackStraightA.png");
     this.load.image("tileTrackStraightB", "../assets/sprites/tiles/tileTrackStraightB.png");
+
+    // buildables
+    this.load.image("solarPanel", "../assets/sprites/buildables/solarpanel.png");
 }
 
 function _update()
