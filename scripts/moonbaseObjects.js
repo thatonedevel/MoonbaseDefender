@@ -29,11 +29,23 @@ class Tile extends Phaser.GameObjects.Sprite
     }
 }
 
-class BasicTurret extends BaseObject
+class Buildable extends BaseObject
 {
-    constructor(scene, xPos, yPos)
+    constructor(scene, texture, xPos, yPos)
     {
-        super(scene, "basicTurret", xPos, yPos);
+        super(scene, texture, xPos, yPos);
+    }
+}
+
+class SolarPanel extends Buildable
+{
+    constructor(scene, texture, xPos, yPos)
+    {
+        super(scene, texture, xPos, yPos)
+        {
+            // create solar panel
+            // find the tile at current position
+        }
     }
 }
 
