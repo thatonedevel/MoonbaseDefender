@@ -24,11 +24,16 @@ class BuildableGhost extends BaseObject
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos);
-        // enable object
-        this.setActive(true);
-        this.setVisible(true);
+        scene.add.existing(this);
         // set transparency to 50%
         this.setAlpha(0.5);
+    }
+
+    enable(name)
+    {
+        this.setActive(true);
+        this.setVisible(true);
+        this.setTexture(name);
     }
 
     update()
