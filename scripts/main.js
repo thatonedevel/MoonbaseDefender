@@ -69,6 +69,7 @@ function _create()
     MoonbaseInput.directionKeys = this.input.createCursorKeys();
     // set game state to playing
     currentGameState = GameStates.PLAYING;
+    buildableGhost = new BuildableGhost(this, "solarPanel", 32, 32);
 }
 
 function _preload()
@@ -119,7 +120,7 @@ function _update()
     // input
     if (currentGameState == GameStates.PLAYING)
     {
-
+        buildableGhost.update();
     }
 }
 
