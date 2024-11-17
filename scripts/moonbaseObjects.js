@@ -96,6 +96,16 @@ class SolarPanel extends Buildable
     }
 }
 
+class BasicTurret extends Buildable
+{
+    static cost = 75;
+}
+
+class ShieldGenerator extends Buildable
+{
+    static cost = 50;
+}
+
 class BasicEnemy extends BaseObject
 {
     constructor()
@@ -109,5 +119,26 @@ class BasicProjectile extends BaseObject
     constructor(originX, originY)
     {
 
+    }
+}
+
+class BuildablesFactory
+{
+    static __BuildablesObj = 
+    {
+        solarPanel: SolarPanel,
+        basicTurret: BasicTurret,
+        shieldGenerator: ShieldGenerator
+    };
+
+    static createNewBuildable(scene, name, xPos, yPos)
+    {
+        // create a buildable object specified by name
+        return this.__BuildablesObj[name](scene, name, xPos, yPos);
+    }
+
+    static getBuildableCost(name)
+    {
+        return this.__BuildablesObj[name].cost;
     }
 }
