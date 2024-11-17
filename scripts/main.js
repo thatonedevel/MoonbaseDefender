@@ -1,12 +1,19 @@
-const COLUMNS = 16;
-const ROWS = 9;
-
 // object for game states
 let GameStates = 
 {
-    TITLE: 1,
-    GAMEOVER: 2
+    TITLE: 0,
+    GAME_OVER: 1,
+    PAUSED: 2,
+    PLAYING: 3,
+    SELECTING_LEVEL: 4
 };
+
+let buildableGhost;
+
+const COLUMNS = 16;
+const ROWS = 9;
+let currentGameState = GameStates.PLAYING;
+
 
 // input object
 const MoonbaseInput = 
@@ -60,6 +67,8 @@ function _create()
     // add input maps to game input object
     MoonbaseInput.mouse = this.input.activePointer;
     MoonbaseInput.directionKeys = this.input.createCursorKeys();
+    // set game state to playing
+    currentGameState = GameStates.PLAYING;
 }
 
 function _preload()
@@ -75,7 +84,7 @@ function _preload()
     this.load.image("tilePlaceableA", "../assets/sprites/tiles/tilePlaceableA.png");
     this.load.image("tilePlaceableB", "../assets/sprites/tiles/tilePlaceableB.png");
 
-    this.load.image("tileTrackCrossA", "../assets/sprites/tiles/tileTrackCrossA.png");
+    this.load.image("tileTrackCrossA", "../assets/sprites/tiles/tileTrackCrosszA.png");
     this.load.image("tileTrackCrossB", "../assets/sprites/tiles/tileTrackCrossB.png");
 
     this.load.image("tileTrackCurveA", "../assets/sprites/tiles/tileTrackCurveA.png");
@@ -105,6 +114,12 @@ function _update()
     for (let i = 0; i < gameObjectsCollection.projectiles.length; i++)
     {
         gameObjectsCollection.projectiles[i].update();
+    }
+
+    // input
+    if (currentGameState == GameStates.PLAYING)
+    {
+
     }
 }
 
