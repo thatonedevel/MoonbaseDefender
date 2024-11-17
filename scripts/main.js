@@ -57,6 +57,9 @@ function _create()
 {
     // create base game objects
     loadLevel(0, this);
+    // add input maps to game input object
+    MoonbaseInput.mouse = this.input.activePointer;
+    MoonbaseInput.directionKeys = this.input.createCursorKeys();
 }
 
 function _preload()
