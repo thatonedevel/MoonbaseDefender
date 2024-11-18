@@ -25,6 +25,7 @@ class BuildableGhost extends BaseObject
         scene.add.existing(this);
         // set transparency to 50%
         this.setAlpha(0.5);
+        this.setScale(0.5, 0.5);
         this.setActive(false);
         this.setVisible(false);
     }
@@ -34,38 +35,21 @@ class BuildableGhost extends BaseObject
         this.setActive(true);
         this.setVisible(true);
         this.setTexture(name);
+        console.log("Ghost enabled with name", name);
     }
 
     update()
     {
-        let nearestTile = null;
+        //let nearestTile = null;
         // set position to nearest grid tile
         if (this.active && this.visible)
         {
-            for (let row = 0; row < gameObjectsCollection.board.length; row++)
-            {
-                for (let col = 0; col < gameObjectsCollection.board[row].length; col++)
-                {
-                    // check current tile's distance to mouse
-                    if (nearestTile != null)
-                    {
-                        // dist = sqrt(x^2 + y^2)
-                        let dist = Math.sqrt((MoonbaseInput.mouse.x - nearestTile.x)**2 + (MoonbaseInput.mouse.y - nearestTile.y)**2);
-                        let newTileDist = Math.sqrt((MoonbaseInput.mouse.x - gameObjectsCollection.board[row][col].x)**2 + (MoonbaseInput.mouse.y - gameObjectsCollection.board[row][col].y)**2);
-                        if (newTileDist < dist)
-                        {
-                            nearestTile = gameObjectsCollection.board[row][col];
-                            console.log("Found tile");
-                        }
-                    }
-                }
-            }
-            // set position to nearest tile pos
-            if (nearestTile !== null)
-            {
-                this.x = nearestTile.x;
-                this.y = nearestTile.y;
-            }
+            // get closest position to mouse that is multiple of 32
+            // use modulo (remainder) to determine offset
+            let offsetX = MoonbaseInput.mouse.worldX % 64;
+            let offsetY = MoonbaseInput.mouse.worldY % 64;
+            this.x = Phaser.Math.Clamp((MoonbaseInput.mouse.worldX - offsetX) + 32, 32, 64*16);
+            this.y = Phaser.Math.Clamp((MoonbaseInput.mouse.worldY - offsetY) + 32, 32, 64*16);
         }
     }
 }
