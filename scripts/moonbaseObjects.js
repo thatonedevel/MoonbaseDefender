@@ -36,7 +36,7 @@ class BuildableGhost extends BaseObject
 
     update()
     {
-        nearestTile = null;
+        let nearestTile = null;
         // set position to nearest grid tile
         if (this.active && this.visible)
         {
@@ -53,13 +53,17 @@ class BuildableGhost extends BaseObject
                         if (newTileDist < dist)
                         {
                             nearestTile = gameObjectsCollection.board[row][col];
+                            console.log("Found tile");
                         }
                     }
                 }
             }
             // set position to nearest tile pos
-            this.x = nearestTile.x;
-            this.y = nearestTile.y;
+            if (nearestTile !== null)
+            {
+                this.x = nearestTile.x;
+                this.y = nearestTile.y;
+            }
         }
     }
 }
