@@ -25,6 +25,8 @@ class BuildableGhost extends BaseObject
         scene.add.existing(this);
         // set transparency to 50%
         this.setAlpha(0.5);
+        this.setActive(false);
+        this.setVisible(false);
     }
 
     enable(name)
