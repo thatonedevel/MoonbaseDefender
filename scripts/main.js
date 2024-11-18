@@ -22,7 +22,7 @@ const MoonbaseInput =
 };
 
 // all gameobjects are to be stored here
-let gameObjectsCollection = 
+const gameObjectsCollection = 
 {
     turrets: [],
     enemies: [],
@@ -37,7 +37,8 @@ let gameObjectsCollection =
         [],
         []
     ],
-    projectiles: []
+    projectiles: [],
+    gui: []
 };
 
 function main()
@@ -69,6 +70,9 @@ function _create()
     // set game state to playing
     currentGameState = GameStates.PLAYING;
     buildableGhost = new BuildableGhost(this, "solarPanel", 32, 32);
+    // add the buttons for creating the buildables
+    gameObjectsCollection.gui.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 550, [createSolarPanel]));
+    gameObjectsCollection.gui.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 128, 550, [createBasicTurret]));
 }
 
 function _preload()
