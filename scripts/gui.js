@@ -51,6 +51,7 @@ class MButton extends Phaser.GameObjects.Text
         {
             this.#onClickListeners.push(callbacks[ind]);
         }
+        console.log("Total callbacks on Button '" + msg + "':", this.#onClickListeners.length);
 
         // add updates for hover, click etc
         this.on("pointerdown", this.__onClick);
@@ -102,23 +103,10 @@ class MButton extends Phaser.GameObjects.Text
     {
         // check if this gameobject is in the currentlyOver array
         // time complexity O(n)
-        let fireOnClicks = false;
-        for (let objInd = 0; objInd < currentlyOver.length; objInd++)
+        console.log("Button clicked");
+        for (let listener = 0; listener < this.#onClickListeners.length; listener++)
         {
-            if (currentlyOver[objInd] == this)
-            {
-                fireOnClicks = true;
-                this.setColor(this.#clickCol);
-                break;
-            }
-        }
-
-        if (fireOnClicks)
-        {
-            for (let listener = 0; listener < this.#onClickListeners.length; listener++)
-            {
-                this.#onClickListeners[listener](pointer);
-            }
+            this.#onClickListeners[listener](pointer);
         }
     }
 
