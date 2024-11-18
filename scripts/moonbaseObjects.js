@@ -1,5 +1,3 @@
-const { GameObjects } = require("phaser");
-
 class BaseObject extends Phaser.GameObjects.Sprite
 {
     constructor(scene, texture, xPos, yPos)
