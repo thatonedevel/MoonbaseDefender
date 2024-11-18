@@ -1,5 +1,3 @@
-const { Game } = require("phaser");
-
 function createBasicTurret()
 {
     buildableGhost.enable("basicTurret")
