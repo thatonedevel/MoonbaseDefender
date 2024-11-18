@@ -14,7 +14,6 @@ const COLUMNS = 16;
 const ROWS = 9;
 let currentGameState = GameStates.PLAYING;
 
-
 // input object
 const MoonbaseInput = 
 {
@@ -66,7 +65,7 @@ function _create()
     loadLevel(0, this);
     // add input maps to game input object
     MoonbaseInput.mouse = this.input.activePointer;
-    MoonbaseInput.directionKeys = this.input.createCursorKeys();
+    MoonbaseInput.directionKeys = this.input.keyboard.createCursorKeys();
     // set game state to playing
     currentGameState = GameStates.PLAYING;
     buildableGhost = new BuildableGhost(this, "solarPanel", 32, 32);
