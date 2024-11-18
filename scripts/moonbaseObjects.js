@@ -52,6 +52,15 @@ class BuildableGhost extends BaseObject
             this.y = Phaser.Math.Clamp((MoonbaseInput.mouse.worldY - offsetY) + 32, 32, 64*16);
         }
     }
+
+    createBuildable()
+    {
+        if (this.active && this.visible)
+        {
+            newStructure = BuildablesFactory.createNewBuildable(this.texture);
+            
+        }
+    }
 }
 
 class Buildable extends BaseObject
