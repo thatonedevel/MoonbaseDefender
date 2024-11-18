@@ -26,7 +26,7 @@ function togglePause()
 }
 
 // gui classes
-class Button extends Phaser.GameObjects.Text
+class MButton extends Phaser.GameObjects.Text
 {
     #clickCol = "";
     #hoverCol = "";
