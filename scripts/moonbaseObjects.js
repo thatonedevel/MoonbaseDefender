@@ -66,19 +66,6 @@ class BuildableGhost extends BaseObject
     }
 }
 
-class Tile extends Phaser.GameObjects.Sprite
-{
-    constructor(scene, tileX, tileY, texture, forPlayer = false)
-    {
-        super(scene, tileX, tileY, texture)
-        this.occupant = null;
-        this.isTurretSpace = forPlayer;
-        this.nextTileTranslation = null;
-        this.setScale(0.5, 0.5);
-        scene.add.existing(this);
-    }
-}
-
 class Buildable extends BaseObject
 {
     static cost = 0;

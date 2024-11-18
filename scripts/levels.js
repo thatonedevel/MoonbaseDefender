@@ -41,13 +41,26 @@ const LEVELS = [
     ]
 ];
 
+class Tile extends Phaser.GameObjects.Sprite
+{
+    constructor(scene, tileX, tileY, texture, forPlayer = false)
+    {
+        super(scene, tileX, tileY, texture)
+        this.occupant = null;
+        this.isTurretSpace = forPlayer;
+        this.nextTileTranslation = null;
+        this.setScale(0.5, 0.5);
+        scene.add.existing(this);
+    }
+}
+
 function loadLevel(levelIndex, scene)
 {
     let tileX = 32;
     let tileY = 32;
     let tileCount = 0;
     let currentVariant = "A";
-    let newTile;
+    let newTile = null;
 
     // clear out level data
     for (let turretIndex = 0; turretIndex < gameObjectsCollection.turrets.length; turretIndex++)
