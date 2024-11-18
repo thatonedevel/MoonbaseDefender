@@ -1,10 +1,12 @@
 function createBasicTurret()
 {
+    console.log("request for basic turret");
     buildableGhost.enable("basicTurret")
 }
 
 function createSolarPanel()
 {
+    console.log("request for solar panel");
     buildableGhost.enable("solarPanel");
 }
 
@@ -38,7 +40,7 @@ class MButton extends Phaser.GameObjects.Text
         // all listeners given to the button will recieve a reference to the pointer that triggered the event
         super(scene, xPos, yPos, msg, msgConfig);
         scene.add.existing(this);
-        this.setInteractive(true);
+        this.setInteractive();
         this.#standardCol = clickCol;
         this.#hoverCol = hoverCol;
         this.#standardCol = backgroundCol;
@@ -51,7 +53,9 @@ class MButton extends Phaser.GameObjects.Text
         }
 
         // add updates for hover, click etc
-
+        this.on("pointerdown", this.__onClick);
+        this.on("pointerover", ()=>{this.__updateCol(2);});
+        this.on("pointerout", ()=>{this.__updateCol(1);});
     }
 
     setStandardCol(newCol)
@@ -104,6 +108,7 @@ class MButton extends Phaser.GameObjects.Text
             if (currentlyOver[objInd] == this)
             {
                 fireOnClicks = true;
+                this.setColor(this.#clickCol);
                 break;
             }
         }
