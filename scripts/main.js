@@ -1,5 +1,5 @@
 // object for game states
-let GameStates = 
+const GameStates = 
 {
     TITLE: 0,
     GAME_OVER: 1,
