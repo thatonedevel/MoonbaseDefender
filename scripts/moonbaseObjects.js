@@ -22,7 +22,6 @@ class BuildableGhost extends BaseObject
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos);
-        scene.add.existing(this);
         // set transparency to 50%
         this.setAlpha(0.5);
         this.setScale(0.5, 0.5);
