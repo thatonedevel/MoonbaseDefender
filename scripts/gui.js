@@ -54,9 +54,9 @@ class MButton extends Phaser.GameObjects.Text
         console.log("Total callbacks on Button '" + msg + "':", this.#onClickListeners.length);
 
         // add updates for hover, click etc
-        this.on("pointerdown", this.__onClick);
-        this.on("pointerover", ()=>{this.__updateCol(2);});
-        this.on("pointerout", ()=>{this.__updateCol(1);});
+        this.on("pointerdown", this.#onClick);
+        this.on("pointerover", ()=>{this.#updateCol(2);});
+        this.on("pointerout", ()=>{this.#updateCol(1);});
     }
 
     setStandardCol(newCol)
@@ -79,7 +79,7 @@ class MButton extends Phaser.GameObjects.Text
         this.on("pointerdown", callback);
     }
 
-    __updateCol(updateType)
+    #updateCol(updateType)
     {
         // updateType values:
         // 1 - standard (background colour)
@@ -99,7 +99,7 @@ class MButton extends Phaser.GameObjects.Text
         }
     }
 
-    __onClick(pointer, currentlyOver = [])
+    #onClick(pointer, currentlyOver = [])
     {
         // check if this gameobject is in the currentlyOver array
         // time complexity O(n)
