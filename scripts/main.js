@@ -72,7 +72,7 @@ function _create()
     buildableGhost = new BuildableGhost(this, "solarPanel", 32, 32);
     // add the buttons for creating the buildables
     gameObjectsCollection.gui.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 550, [createSolarPanel]));
-    gameObjectsCollection.gui.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 128, 550, [createBasicTurret]));
+    gameObjectsCollection.gui.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 550, [createBasicTurret]));
 }
 
 function _preload()
