@@ -62,6 +62,50 @@ class BuildableGhost extends BaseObject
     }
 }
 
+class EnergyUnit extends BaseObject
+{
+    #movingToBank = false;
+    #speed = 5;
+    constructor(scene, texture, xPos, yPos)
+    {
+        super(scene, texture, xPos, yPos);
+        this.on("pointerdown", this.#moveToBank);
+    }
+
+    update()
+    {
+        if (this.#movingToBank && this.active)
+        {
+            // calculate vector from here to "bank" (top right of game area)
+            if (gameObjectsCollection.energyReadout === null) return;
+            
+            let distVector = Phaser.Math.Vector2(gameObjectsCollection.energyReadout.x - this.x, 
+                gameObjectsCollection.energyReadout.y - this.y);
+
+            // determine movement as 5 * unit vec
+            let mov =  distVector/distVector.length() * this.#speed * gameData.deltaTime;
+            
+            if (mov.length() < 20)
+            {
+                // close to bank, count it
+                this.setVisible(false);
+                this.setActive(false);
+                gameData.energyStored += 50;
+            }
+            else
+            {
+                this.x += mov.x;
+                this.y += mov.y;
+            }
+        }
+    }
+
+    #moveToBank()
+    {
+        this.#movingToBank = true;
+    }
+}
+
 class Buildable extends BaseObject
 {
     static cost = 0;
