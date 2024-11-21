@@ -1,18 +1,28 @@
 function createBasicTurret()
 {
     console.log("request for basic turret");
-    buildableGhost.enable("basicTurret")
+    if (gameData.energyStored >= BasicTurret.cost)
+        buildableGhost.enable("basicTurret");
+    else
+        console.log("insufficient energy");
 }
 
 function createSolarPanel()
 {
     console.log("request for solar panel");
-    buildableGhost.enable("solarPanel");
+    if (gameData.energyStored >= SolarPanel.cost)
+        buildableGhost.enable("solarPanel");
+    else
+        console.log("insufficient energy");
 }
 
 function createShieldGenerator()
 {
-    buildableGhost.enable("shieldGenerator");
+    console.log("request for shield generator");
+    if (gameData.energyStored >= ShieldGenerator.cost)
+        buildableGhost.enable("shieldGenerator");
+    else
+        console.log("insufficient energy");
 }
 
 function togglePause()
