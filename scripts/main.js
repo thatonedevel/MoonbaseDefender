@@ -56,7 +56,16 @@ const gameObjectsCollection =
         []
     ],
     projectiles: [],
-    gui: []
+    buildableButtons: [],
+    energyReadout: null
+};
+
+const gameData = 
+{
+    score: 0,
+    highscore: 0,
+    energyStored: 25,
+    deltaTime: 0
 };
 
 function main()
@@ -89,8 +98,9 @@ function _create()
     currentGameState = GameStates.PLAYING;
     buildableGhost = new BuildableGhost(this, "solarPanel", 32, 32);
     // add the buttons for creating the buildables
-    gameObjectsCollection.gui.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 550, [createSolarPanel]));
-    gameObjectsCollection.gui.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 550, [createBasicTurret]));
+    gameObjectsCollection.buildableButtons.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 550, [createSolarPanel]));
+    gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 550, [createBasicTurret]));
+    gameObjectsCollection.energyReadout = this.add.text(800, 50, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
 }
 
 function _preload()
@@ -117,10 +127,14 @@ function _preload()
 
     // buildables
     this.load.image("solarPanel", "../assets/sprites/buildables/solarpanel.png");
+
+    // other
+    this.load.image("energy", "../assets/sprites/energy.png");
 }
 
 function _update()
 {
+    let deltaStart = Date.now();
     // main game loop goes here
     // call update on all game objects
     for (let i = 0; i < gameObjectsCollection.turrets.length; i++)
@@ -143,6 +157,12 @@ function _update()
     {
         buildableGhost.update();
     }
+
+
+
+
+    // delta time calculation, ran at the end of every frame
+    gameData.deltaTime = (Date.now() - deltaStart) / 1000;
 }
 
 function fileAddedToLoadQueueListener(key, type, loader, file)
