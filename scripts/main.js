@@ -57,7 +57,8 @@ const gameObjectsCollection =
     ],
     projectiles: [],
     buildableButtons: [],
-    energyReadout: null
+    energyReadout: null,
+    alertBanner: null
 };
 
 const gameData = 
@@ -101,6 +102,7 @@ function _create()
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 550, [createSolarPanel]));
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 550, [createBasicTurret]));
     gameObjectsCollection.energyReadout = this.add.text(800, 50, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
+    gameObjectsCollection.alertBanner = this.add.text(0, 525, "[ALERT]", {fontSize: 16, fontFamily: "Arial", backgroundColor: "#ea1111", color:"#FFFFFF", padding:{x:500, y:10}, align:"center"}).setAlpha(0.75);
 }
 
 function _preload()
