@@ -153,6 +153,7 @@ class MButton extends Phaser.GameObjects.Text
 
 class AlertBanner extends Phaser.GameObjects.Text
 {
+
     #fadeOutEnabled = false;
     #fadeOutDuration = 1;
     #originalAlpha = 1;
@@ -160,11 +161,14 @@ class AlertBanner extends Phaser.GameObjects.Text
     constructor(scene, xPos, yPos, msg, style={
         fontSize:16,
         fontFace:"Arial",
-        backgroundColor:"#e31045",
+        backgroundColor:"#B80202",
         color:"#FFFFFF",
         padding:{x:250, y:10}
     })
     {
+        /**
+         * An alert banner that disappears after a given time, with optional fading
+         */
         super(scene, xPos, yPos, msg, style);
         this.setActive(false);
         this.setVisible(false);
@@ -186,6 +190,8 @@ class AlertBanner extends Phaser.GameObjects.Text
             this.#fadeOutDuration = 0;
         }
 
+        this.#fadeOutEnabled = fadeOut;
+
         if (message !== null)
             this.setText(message);
         this.setVisible(true);
@@ -197,7 +203,7 @@ class AlertBanner extends Phaser.GameObjects.Text
     {
         if (this.active && this.visible)
         {
-            if (this.#fadeOutDuration !== 0)
+            if (this.#fadeOutEnabled)
             {
                 // banner should fade over time
                 this.setAlpha(this.alpha - this.#deltaAlpha);
