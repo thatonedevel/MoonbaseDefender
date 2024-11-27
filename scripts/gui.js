@@ -150,3 +150,66 @@ class MButton extends Phaser.GameObjects.Text
         this.setActive(false);
     }
 }
+
+class AlertBanner extends Phaser.GameObjects.Text
+{
+    #fadeOutEnabled = false;
+    #fadeOutDuration = 1;
+    #originalAlpha = 1;
+    #deltaAlpha = 0;
+    constructor(scene, xPos, yPos, msg, style={
+        fontSize:16,
+        fontFace:"Arial",
+        backgroundColor:"#e31045",
+        color:"#FFFFFF",
+        padding:{x:250, y:10}
+    })
+    {
+        super(scene, xPos, yPos, msg, style);
+        this.setActive(false);
+        this.setVisible(false);
+        this.#originalAlpha = this.alpha;
+
+        // calculate delta alpha for fadeout
+        this.#deltaAlpha = this.#originalAlpha / this.#fadeOutDuration;
+    }
+
+    enable(duration, fadeOut=false, message=null)
+    {
+        if (fadeOut)
+        {
+            this.#fadeOutDuration = duration;
+            this.#deltaAlpha = this.#originalAlpha / this.#fadeOutDuration;
+        }
+        else
+        {
+            this.#fadeOutDuration = 0;
+        }
+
+        if (message !== null)
+            this.setText(message);
+        this.setVisible(true);
+        this.setActive(true);
+        this.scene.time.addEvent({delay:duration, callback:this.#disable});
+    }
+
+    update()
+    {
+        if (this.active && this.visible)
+        {
+            if (this.#fadeOutDuration !== 0)
+            {
+                // banner should fade over time
+                this.setAlpha(this.alpha - this.#deltaAlpha);
+            }
+        }
+    }
+
+    #disable()
+    {
+        this.setActive(false);
+        this.setVisible(false);
+        // reset alpha
+        this.setAlpha(this.#originalAlpha);
+    }
+}
