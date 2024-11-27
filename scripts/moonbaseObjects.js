@@ -16,6 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+function checkDistBetweenGameObjects(objA, objB)
+{
+    /**
+     * @param {Phaser.GameObjects.GameObject} objA
+     * @param {Phaser.GameObjects.GameObject} objB
+     * @returns {number}
+     */
+    // checks the distance between two phaser gameobjects
+    let xDist = objA.x - objB.x;
+    let yDist = objA.y - objB.y;
+
+    return Math.sqrt(xDist**2 + yDist**2);
+}
+
 class BaseObject extends Phaser.GameObjects.Sprite
 {
     constructor(scene, texture, xPos, yPos)
@@ -26,6 +40,8 @@ class BaseObject extends Phaser.GameObjects.Sprite
         this.health = 100;
         this.defense = 0;
         this.damage = 5;
+        this.cooldown = 5;
+        this.__cooldownStartTime = 0; // using __ prefix as ES6 does not have protected properties
         scene.add.existing(this);
     }
 
@@ -139,10 +155,14 @@ class SolarPanel extends Buildable
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos)
-        {
-            // create solar panel
-            // find the tile at current position
-        }
+        // create solar panel
+        // find the tile at current position
+        this.damage = 0;
+        this.cooldown = 10;
+        // tile row
+        gameObjectsCollection.board[yPos / 32][xPos / 32].occupant = this;
+        this.setActive(true);
+        this.setVisible(true);
     }
 }
 
