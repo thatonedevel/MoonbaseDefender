@@ -159,10 +159,7 @@ function _update()
     {
         buildableGhost.update();
     }
-
-
-
-
+    
     // delta time calculation, ran at the end of every frame
     gameData.deltaTime = (Date.now() - deltaStart) / 1000;
 }
