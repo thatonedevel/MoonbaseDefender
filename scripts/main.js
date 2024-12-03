@@ -35,6 +35,14 @@ const GameStates =
     SELECTING_LEVEL: 4
 };
 
+const COMPASS_HEADINGS = 
+{
+    NORTH: 0,
+    SOUTH: 1,
+    EAST: 2,
+    WEST: 3
+};
+
 let buildableGhost;
 
 const COLUMNS = 16;
