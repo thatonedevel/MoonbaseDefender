@@ -16,8 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const { FacebookInstantGamesLeaderboard } = require("phaser");
-
 // sprites
 const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
 const SPRITE_BASIC_TURRET_KEY = "basicTurret";
@@ -206,6 +204,7 @@ function _update()
     if (currentGameState == GameStates.PLAYING)
     {
         buildableGhost.update();
+        updateBanner();
     }
 
     gameObjectsCollection.energyReadout.setText("Energy: " + gameData.energyStored.toString());
