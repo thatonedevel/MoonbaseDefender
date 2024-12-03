@@ -16,6 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+// sprites
+const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
+const SPRITE_BASIC_TURRET_KEY = "basicTurret";
+const SPRITE_ENERGY_KEY = "energy";
+
+// animations
+const ANIMATION_ENERGY_PRODUCE_KEY = "energyProduce";
+const ANIMATION_TURRET_FIRE_KEY = "turretFire";
+
 // object for game states
 const GameStates = 
 {
@@ -97,12 +106,15 @@ function _create()
     MoonbaseInput.directionKeys = this.input.keyboard.createCursorKeys();
     // set game state to playing
     currentGameState = GameStates.PLAYING;
-    buildableGhost = new BuildableGhost(this, "solarPanel", 32, 32);
+    buildableGhost = new BuildableGhost(this, SPRITE_SOLAR_PANEL_KEY, 32, 32);
     // add the buttons for creating the buildables
+    // create game animations
+    this.anims.create({key:ANIMATION_ENERGY_PRODUCE_KEY, frames:"solarPanel"});
+
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 550, [createSolarPanel]));
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 550, [createBasicTurret]));
-    gameObjectsCollection.energyReadout = this.add.text(800, 50, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
-    gameObjectsCollection.alertBanner = this.add.text(0, 525, "[ALERT]", {fontSize: 16, fontFamily: "Arial", backgroundColor: "#ea1111", color:"#FFFFFF", padding:{x:500, y:10}, align:"center"}).setAlpha(0.75);
+    gameObjectsCollection.energyReadout = this.add.text(925, 15, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
+    gameObjectsCollection.alertBanner = new AlertBanner(this, 512, 525, "ALERT").setBannerAlpha(0.75);
 }
 
 function _preload()
@@ -128,10 +140,11 @@ function _preload()
     this.load.image("tileTrackStraightB", "../assets/sprites/tiles/tileTrackStraightB.png");
 
     // buildables
-    this.load.image("solarPanel", "../assets/sprites/buildables/solarpanel.png");
-
+    //this.load.image("solarPanel", "../assets/sprites/buildables/solarpanel.png");
+    this.load.spritesheet(SPRITE_SOLAR_PANEL_KEY, "../assets/sprites/buildables/solarpanel.png", {frameWidth:128, frameHeight:128, startFrame:0, endFrame:2});
+    this.load.spritesheet(SPRITE_BASIC_TURRET_KEY, "../assets/sprites/buildables/turret_sheet.png", {frameWidth:68, frameHeight:128, startFrame:0, endFrame:8});
     // other
-    this.load.image("energy", "../assets/sprites/energy.png");
+    this.load.image(SPRITE_ENERGY_KEY, "../assets/sprites/energy.png");
 }
 
 function _update()
@@ -159,7 +172,8 @@ function _update()
     {
         buildableGhost.update();
     }
-    
+
+    gameObjectsCollection.energyReadout.setText("Energy: " + gameData.energyStored.toString());
     // delta time calculation, ran at the end of every frame
     gameData.deltaTime = (Date.now() - deltaStart) / 1000;
 }
