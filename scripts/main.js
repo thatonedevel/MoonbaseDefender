@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+const { FacebookInstantGamesLeaderboard } = require("phaser");
+
 // sprites
 const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
 const SPRITE_BASIC_TURRET_KEY = "basicTurret";
@@ -75,7 +77,9 @@ const gameData =
     score: 0,
     highscore: 0,
     energyStored: 25,
-    deltaTime: 0
+    deltaTime: 0,
+    bannerEnableTime: 0,
+    BANNER_DURATION: 2500
 };
 
 function main()
@@ -115,6 +119,37 @@ function _create()
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 550, [createBasicTurret]));
     gameObjectsCollection.energyReadout = this.add.text(925, 15, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
     gameObjectsCollection.alertBanner = this.add.text(50, 525, "Insufficient Energy", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:400, y:5}, align:"center"}).setAlpha(0.75);
+}
+
+function enableBanner()
+{
+    gameData.bannerEnableTime = Date.now();
+    gameObjectsCollection.alertBanner.setActive(true);
+    gameObjectsCollection.alertBanner.setVisible(true);
+    gameObjectsCollection.alertBanner.setAlpha(0.75);
+}
+
+function updateBanner()
+{
+    if (gameObjectsCollection.alertBanner.active)
+    {
+        if (Date.now() - gameData.bannerEnableTime >= gameData.BANNER_DURATION)
+        {
+            gameObjectsCollection.alertBanner.setActive(false);
+            gameObjectsCollection.alertBanner.setVisible(false);
+            gameObjectsCollection.alertBanner.setAlpha(0.75);
+            gameData.bannerEnableTime = 0;
+        }
+        else
+        {
+            let fullTransparency = 0.75;
+            // determine % of duration passed and map that onto the alpha value
+            let enabledDuration = Date.now() - gameData.bannerEnableTime;
+
+            let newTransparency = (enabledDuration / gameData.BANNER_DURATION) * fullTransparency;
+            gameObjectsCollection.alertBanner.setAlpha(newTransparency);
+        }
+    }
 }
 
 function _preload()
