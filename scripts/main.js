@@ -61,6 +61,7 @@ const gameObjectsCollection =
 {
     turrets: [],
     enemies: [],
+    energyObjects: [],
     board: [
         [],
         [],
