@@ -146,6 +146,8 @@ class Buildable extends BaseObject
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos);
+        // tile row
+        gameObjectsCollection.board[yPos / 32][xPos / 32].occupant = this;
     }
 }
 
@@ -159,10 +161,16 @@ class SolarPanel extends Buildable
         // find the tile at current position
         this.damage = 0;
         this.cooldown = 10;
-        // tile row
-        gameObjectsCollection.board[yPos / 32][xPos / 32].occupant = this;
         this.setActive(true);
         this.setVisible(true);
+    }
+
+    update()
+    {
+        if (Date.now() - this.__cooldownStartTime >= this.cooldown)
+        {
+            // create energy unit
+        }
     }
 }
 
