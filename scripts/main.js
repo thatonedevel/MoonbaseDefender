@@ -114,7 +114,7 @@ function _create()
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 550, [createSolarPanel]));
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 550, [createBasicTurret]));
     gameObjectsCollection.energyReadout = this.add.text(925, 15, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
-    gameObjectsCollection.alertBanner = new AlertBanner(this, 512, 525, "ALERT").setBannerAlpha(0.75);
+    gameObjectsCollection.alertBanner = this.add.text(50, 525, "Insufficient Energy", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:400, y:5}, align:"center"}).setAlpha(0.75);
 }
 
 function _preload()
