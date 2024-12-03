@@ -77,7 +77,7 @@ const gameData =
     energyStored: 25,
     deltaTime: 0,
     bannerEnableTime: 0,
-    BANNER_DURATION: 2500
+    BANNER_DURATION: 3000
 };
 
 function main()
@@ -116,7 +116,7 @@ function _create()
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 550, [createSolarPanel]));
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 550, [createBasicTurret]));
     gameObjectsCollection.energyReadout = this.add.text(925, 15, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
-    gameObjectsCollection.alertBanner = this.add.text(50, 525, "Insufficient Energy", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:400, y:5}, align:"center"}).setAlpha(0.75);
+    gameObjectsCollection.alertBanner = this.add.text(0, 525, "Insufficient Energy", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:450, y:5}, align:"center"}).setAlpha(0.75);
 }
 
 function enableBanner()
@@ -144,7 +144,7 @@ function updateBanner()
             // determine % of duration passed and map that onto the alpha value
             let enabledDuration = Date.now() - gameData.bannerEnableTime;
 
-            let newTransparency = (enabledDuration / gameData.BANNER_DURATION) * fullTransparency;
+            let newTransparency = fullTransparency - (enabledDuration / gameData.BANNER_DURATION);
             gameObjectsCollection.alertBanner.setAlpha(newTransparency);
         }
     }
