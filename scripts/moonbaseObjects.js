@@ -49,6 +49,11 @@ class BaseObject extends Phaser.GameObjects.Sprite
     {
 
     }
+
+    changeHealth(amt) 
+    {
+        this.health += amt;        
+    }
 }
 
 class BuildableGhost extends BaseObject
@@ -182,6 +187,37 @@ class BasicTurret extends Buildable
 class ShieldGenerator extends Buildable
 {
     static cost = 50;
+}
+
+class HoloFence extends Buildable
+{
+    static cost = 50;
+    constructor(scene, texture, xPos, yPos, direction)
+    {
+        super(scene, texture, xPos, yPos);
+        this.setOrigin(0.25, 0.5);
+
+        switch (direction)
+        {
+            case COMPASS_HEADINGS.NORTH:
+                this.setAngle(270);
+                break;
+            case COMPASS_HEADINGS.SOUTH:
+                this.setAngle(90);
+                break;
+            case COMPASS_HEADINGS.EAST:
+                this.setAngle(0);
+                break;
+            case COMPASS_HEADINGS.WEST:
+                this.setAngle(180);
+                break;
+        }
+    }
+
+    checkCollisions(enemy)
+    {
+        // checks for enemies passing through the fence
+    }
 }
 
 class BasicEnemy extends BaseObject
