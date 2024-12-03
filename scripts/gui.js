@@ -25,7 +25,7 @@ function createBasicTurret()
     }
     else
     {
-        gameObjectsCollection.alertBanner.enable(2000, false, "Insufficient Energy");
+        enableBanner();
         console.log("insufficient energy");
     }
 }
