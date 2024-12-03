@@ -20,9 +20,14 @@ function createBasicTurret()
 {
     console.log("request for basic turret");
     if (gameData.energyStored >= BasicTurret.cost)
+    {
         buildableGhost.enable("basicTurret");
+    }
     else
+    {
+        gameObjectsCollection.alertBanner.enable(2000, false, "Insufficient Energy");
         console.log("insufficient energy");
+    }
 }
 
 function createSolarPanel()
@@ -158,12 +163,13 @@ class AlertBanner extends Phaser.GameObjects.Text
     #fadeOutDuration = 1;
     #originalAlpha = 1;
     #deltaAlpha = 0;
+    #bannerRect = null;
     constructor(scene, xPos, yPos, msg, style={
         fontSize:16,
         fontFace:"Arial",
-        backgroundColor:"#B80202",
         color:"#FFFFFF",
-        padding:{x:250, y:10}
+        padding:{x:0, y:10},
+        align:"center"
     })
     {
         /**
@@ -173,9 +179,12 @@ class AlertBanner extends Phaser.GameObjects.Text
         this.setActive(false);
         this.setVisible(false);
         this.#originalAlpha = this.alpha;
-
+        this.#bannerRect = scene.add.rectangle(xPos, yPos, 1024, this.displayHeight, style.color, this.alpha);
+        this.#bannerRect.setActive(false);
+        this.#bannerRect.setVisible(false);
         // calculate delta alpha for fadeout
         this.#deltaAlpha = this.#originalAlpha / this.#fadeOutDuration;
+        this.setDepth(1);
     }
 
     enable(duration, fadeOut=false, message=null)
@@ -193,9 +202,14 @@ class AlertBanner extends Phaser.GameObjects.Text
         this.#fadeOutEnabled = fadeOut;
 
         if (message !== null)
+        {
             this.setText(message);
+        }
+            
         this.setVisible(true);
         this.setActive(true);
+        this.#bannerRect.setActive(true);
+        this.#bannerRect.setVisible(true);
         this.scene.time.addEvent({delay:duration, callback:this.#disable});
     }
 
@@ -207,15 +221,27 @@ class AlertBanner extends Phaser.GameObjects.Text
             {
                 // banner should fade over time
                 this.setAlpha(this.alpha - this.#deltaAlpha);
+                this.#bannerRect.setAlpha(this.alpha - this.#deltaAlpha);
             }
         }
     }
 
+    setBannerAlpha(newVal)
+    {
+        this.#originalAlpha = newVal;
+        //this.#bannerRect.setAlpha(newVal);
+        this.setAlpha(newVal);
+        return this;
+    }
+
     #disable()
     {
-        this.setActive(false);
-        this.setVisible(false);
+        super.setActive(false); // WHY IS THIS NOT A FUNCTION PHASER WHAT DO YOU MEAN PLEASE
+        super.setVisible(false);
         // reset alpha
-        this.setAlpha(this.#originalAlpha);
+        super.setAlpha(this.#originalAlpha);
+        this.#bannerRect.setVisible(false);
+        this.#bannerRect.setActive(false);
+
     }
 }
