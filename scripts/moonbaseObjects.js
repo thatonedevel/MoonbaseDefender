@@ -66,6 +66,7 @@ class BuildableGhost extends BaseObject
         this.setScale(0.5, 0.5);
         this.setActive(false);
         this.setVisible(false);
+        //this.on(Phaser.Input.Events.POINTER_DOWN, this.createBuildable);
     }
 
     enable(name)
@@ -87,16 +88,32 @@ class BuildableGhost extends BaseObject
             let offsetX = MoonbaseInput.mouse.worldX % 64;
             let offsetY = MoonbaseInput.mouse.worldY % 64;
             this.x = Phaser.Math.Clamp((MoonbaseInput.mouse.worldX - offsetX) + 32, 32, 64*16);
-            this.y = Phaser.Math.Clamp((MoonbaseInput.mouse.worldY - offsetY) + 32, 32, 64*16);
+            this.y = Phaser.Math.Clamp((MoonbaseInput.mouse.worldY - offsetY) + 32, 32, 64*9);
         }
     }
 
     createBuildable()
     {
+        console.log("TESTING");
         if (this.active && this.visible)
         {
-            newStructure = BuildablesFactory.createNewBuildable(this.texture);
-            
+            console.log("Buildable requested");
+            let row = (this.y / 32) - 1;
+            let col = (this.x / 32) - 1;
+            if (gameObjectsCollection.board.length > row)
+            {
+                if (gameObjectsCollection.board[row].length > col)
+                {
+                    if (gameObjectsCollection.board[row][col].occupant === null)
+                    {
+                        console.log("Placing builable");
+                        let newStructure = BuildablesFactory.createNewBuildable(this.texture, this.x, this.y);
+                        gameObjectsCollection.turrets.push(newStructure);
+                        // set the occupant of the tile to the new turret
+                        gameObjectsCollection.board[row][col].occupant = newStructure;
+                    }
+                }
+            }
         }
     }
 }
@@ -250,21 +267,31 @@ class BasicProjectile extends BaseObject
 
 class BuildablesFactory
 {
+
     static __BuildablesObj = 
     {
-        solarPanel: SolarPanel,
-        basicTurret: BasicTurret,
-        shieldGenerator: ShieldGenerator
+        solarPanel: (scene, name, xPos, yPos) => { return new SolarPanel(scene, name, xPos, yPos); },
+        basicTurret: (scene, name, xPos, yPos) => { return new BasicTurret(scene, name, xPos, yPos); },
+        shieldGenerator: (scene, name, xPos, yPos) => { return new ShieldGenerator(scene, name, xPos, yPos); }
     };
+
+    static COST_MAP = {};
+
+    static initBuildableFactory()
+    {
+        this.COST_MAP[SPRITE_BASIC_TURRET_KEY] = BasicTurret.cost;
+        this.COST_MAP[SPRITE_SOLAR_PANEL_KEY] = SolarPanel.cost;
+        this.COST_MAP[SPRIRE_SHIELD_GENERATOR_KEY] = ShieldGenerator.cost;
+    }
 
     static createNewBuildable(scene, name, xPos, yPos)
     {
         // create a buildable object specified by name
-        return this.__BuildablesObj[name](scene, name, xPos, yPos);
+        return new this.__BuildablesObj[name](scene, name, xPos, yPos);
     }
 
     static getBuildableCost(name)
     {
-        return this.__BuildablesObj[name].cost;
+        return this.__BuildablesObj[name];
     }
 }
