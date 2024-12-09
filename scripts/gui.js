@@ -78,6 +78,7 @@ class MButton extends Phaser.GameObjects.Text
         this.#hoverCol = hoverCol;
         this.#standardCol = backgroundCol;
         this.setBackgroundColor(backgroundCol);
+        this.setPadding(5);
 
         // loop through callbacks and add them to the pointerdown event
         for (let ind = 0; ind < callbacks.length; ind++)
