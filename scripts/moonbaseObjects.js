@@ -158,6 +158,8 @@ class Buildable extends BaseObject
 
 class SolarPanel extends Buildable
 {
+    #animCooldownStarted = true;
+
     static cost = 25;
     constructor(scene, texture, xPos, yPos)
     {
@@ -168,14 +170,24 @@ class SolarPanel extends Buildable
         this.cooldown = 10;
         this.setActive(true);
         this.setVisible(true);
+        this.on(Animations.Events.ANIMATION_COMPLETE, this.#onAnimationEnd)
     }
 
     update()
     {
-        if (Date.now() - this.__cooldownStartTime >= this.cooldown)
+        if (Date.now() - this.__cooldownStartTime >= this.cooldown && this.#animCooldownStarted)
         {
-            // create energy unit
+            this.play(ANIMATION_ENERGY_PRODUCE_KEY);
+            this.__cooldownStartTime = Date.now();
+            this.#animCooldownStarted = false;
         }
+    }
+
+    #onAnimationEnd(anim, frame, context, frameKey)
+    {
+        this.setFrame(0);
+        gameObjectsCollection.energyObjects.push(new EnergyUnit(this.scene, SPRITE_ENERGY_KEY, this.x, this.y));
+        this.#animCooldownStarted = true;
     }
 }
 
