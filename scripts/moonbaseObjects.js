@@ -34,7 +34,7 @@ class BaseObject extends Phaser.GameObjects.Sprite
 {
     constructor(scene, texture, xPos, yPos)
     {
-        super(scene, xPos, yPos, texture)
+        super(scene, xPos, yPos, texture);
         this.boardX = -1;
         this.boardY = -1;
         this.health = 100;
@@ -42,6 +42,7 @@ class BaseObject extends Phaser.GameObjects.Sprite
         this.damage = 5;
         this.cooldown = 5;
         this.__cooldownStartTime = 0; // using __ prefix as ES6 does not have protected properties
+        this.setScale(0.5, 0.5);
         scene.add.existing(this);
     }
 
@@ -207,13 +208,16 @@ class SolarPanel extends Buildable
         this.cooldown = 10;
         this.setActive(true);
         this.setVisible(true);
-        this.on(Animations.Events.ANIMATION_COMPLETE, this.#onAnimationEnd)
+        this.__cooldownStartTime = Date.now();
+        this.on("animationcomplete", this.#onAnimationEnd)
     }
 
     update()
     {
-        if (Date.now() - this.__cooldownStartTime >= this.cooldown && this.#animCooldownStarted)
+        //console.log("Being updated");
+        if ((Date.now() - this.__cooldownStartTime) / 1000 >= this.cooldown && this.#animCooldownStarted)
         {
+            console.log("Producing energy");
             this.play(ANIMATION_ENERGY_PRODUCE_KEY);
             this.__cooldownStartTime = Date.now();
             this.#animCooldownStarted = false;
@@ -222,6 +226,7 @@ class SolarPanel extends Buildable
 
     #onAnimationEnd(anim, frame, context, frameKey)
     {
+        console.log("Spawning energy");
         this.setFrame(0);
         gameObjectsCollection.energyObjects.push(new EnergyUnit(this.scene, SPRITE_ENERGY_KEY, this.x, this.y));
         this.#animCooldownStarted = true;
