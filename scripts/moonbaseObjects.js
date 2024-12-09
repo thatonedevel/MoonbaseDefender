@@ -58,6 +58,8 @@ class BaseObject extends Phaser.GameObjects.Sprite
 
 class BuildableGhost extends BaseObject
 {
+    #mouseDownOnPreviousFrame = false;
+    #buildableName = "";
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos);
@@ -75,6 +77,7 @@ class BuildableGhost extends BaseObject
         this.setVisible(true);
         this.setTexture(name);
         console.log("Ghost enabled with name", name);
+        this.#buildableName = name;
     }
 
     update()
@@ -89,6 +92,18 @@ class BuildableGhost extends BaseObject
             let offsetY = MoonbaseInput.mouse.worldY % 64;
             this.x = Phaser.Math.Clamp((MoonbaseInput.mouse.worldX - offsetX) + 32, 32, 64*16);
             this.y = Phaser.Math.Clamp((MoonbaseInput.mouse.worldY - offsetY) + 32, 32, 64*9);
+
+            // check for input
+            if (this.#mouseDownOnPreviousFrame)
+            {
+                // create the buildable
+                this.#mouseDownOnPreviousFrame = false;
+                this.createBuildable();
+            }
+            if (MoonbaseInput.mouse.leftButtonDown())
+            {
+                this.#mouseDownOnPreviousFrame = true;
+            }
         }
     }
 
@@ -98,8 +113,13 @@ class BuildableGhost extends BaseObject
         if (this.active && this.visible)
         {
             console.log("Buildable requested");
-            let row = (this.y / 32) - 1;
-            let col = (this.x / 32) - 1;
+            let row = Math.floor((this.y / 32) - 1);
+            let col = Math.floor((this.x / 32) - 1);
+
+            console.log("Buildable row:", row, "Buildable column:", col);
+            console.log("Rows available:", gameObjectsCollection.board.length);
+            console.log("Columns available:", gameObjectsCollection.board[0].length);
+
             if (gameObjectsCollection.board.length > row)
             {
                 if (gameObjectsCollection.board[row].length > col)
@@ -107,7 +127,7 @@ class BuildableGhost extends BaseObject
                     if (gameObjectsCollection.board[row][col].occupant === null)
                     {
                         console.log("Placing builable");
-                        let newStructure = BuildablesFactory.createNewBuildable(this.texture, this.x, this.y);
+                        let newStructure = BuildablesFactory.createNewBuildable(this.scene, this.#buildableName, this.x, this.y);
                         gameObjectsCollection.turrets.push(newStructure);
                         // set the occupant of the tile to the new turret
                         gameObjectsCollection.board[row][col].occupant = newStructure;
@@ -268,11 +288,11 @@ class BasicProjectile extends BaseObject
 class BuildablesFactory
 {
 
-    static __BuildablesObj = 
+    static #__BuildablesObj = 
     {
-        solarPanel: (scene, name, xPos, yPos) => { return new SolarPanel(scene, name, xPos, yPos); },
-        basicTurret: (scene, name, xPos, yPos) => { return new BasicTurret(scene, name, xPos, yPos); },
-        shieldGenerator: (scene, name, xPos, yPos) => { return new ShieldGenerator(scene, name, xPos, yPos); }
+        solarPanel: function(scene, name, xPos, yPos) { return new SolarPanel(scene, name, xPos, yPos); },
+        basicTurret: function(scene, name, xPos, yPos) { return new BasicTurret(scene, name, xPos, yPos); },
+        shieldGenerator: function(scene, name, xPos, yPos) { return new ShieldGenerator(scene, name, xPos, yPos); }
     };
 
     static COST_MAP = {};
@@ -287,11 +307,13 @@ class BuildablesFactory
     static createNewBuildable(scene, name, xPos, yPos)
     {
         // create a buildable object specified by name
-        return new this.__BuildablesObj[name](scene, name, xPos, yPos);
+        console.log("Name:", name);
+        let obj = this.#__BuildablesObj[name](scene, name, xPos, yPos);
+        return obj;
     }
 
     static getBuildableCost(name)
     {
-        return this.__BuildablesObj[name];
+        return this.COST_MAP[name];
     }
 }
