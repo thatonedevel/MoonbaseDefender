@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 // sprites
 const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
 const SPRITE_BASIC_TURRET_KEY = "basicTurret";
+const SPRIRE_SHIELD_GENERATOR_KEY = "shieldGenerator";
 const SPRITE_ENERGY_KEY = "energy";
 
 // animations
@@ -91,6 +92,7 @@ const gameData =
 
 function main()
 {
+    BuildablesFactory.initBuildableFactory();
     let config = 
     {
         width: 1024,
