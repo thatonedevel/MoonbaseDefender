@@ -132,6 +132,13 @@ class BuildableGhost extends BaseObject
                         gameObjectsCollection.turrets.push(newStructure);
                         // set the occupant of the tile to the new turret
                         gameObjectsCollection.board[row][col].occupant = newStructure;
+
+                        // disable self
+                        this.setVisible(false);
+                        this.setActive(false);
+
+                        // deduct cost from energy bank
+                        gameData.energyStored -= BuildablesFactory.getBuildableCost(this.#buildableName);
                     }
                 }
             }
@@ -146,6 +153,7 @@ class EnergyUnit extends BaseObject
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos);
+        this.setInteractive();
         this.on("pointerdown", this.#moveToBank);
     }
 
@@ -154,31 +162,36 @@ class EnergyUnit extends BaseObject
         if (this.#movingToBank && this.active)
         {
             // calculate vector from here to "bank" (top right of game area)
-            if (gameObjectsCollection.energyReadout === null) return;
+            console.log("Moving");
+            let distX = gameObjectsCollection.energyReadout.x - this.x;
+            let distY = gameObjectsCollection.energyReadout.y - this.y
             
-            let distVector = Phaser.Math.Vector2(gameObjectsCollection.energyReadout.x - this.x, 
-                gameObjectsCollection.energyReadout.y - this.y);
+            console.log("Distance vector: x:", distX, "y:", distY);
 
             // determine movement as 5 * unit vec
-            let mov =  distVector/distVector.length() * this.#speed * gameData.deltaTime;
+            let movX =  distX/Math.sqrt(distX**2 + distY**2) * this.#speed * gameData.deltaTime;
+            let movY = distY/Math.sqrt(distX**2 + distY**2) * this.#speed * gameData.deltaTime;
             
-            if (mov.length() < 20)
+            if (Math.sqrt(movX**2 + movY**2) < 20)
             {
                 // close to bank, count it
                 this.setVisible(false);
                 this.setActive(false);
+                let ind = gameObjectsCollection.energyObjects.indexOf(this);
+                if (ind !== -1) gameObjectsCollection.energyObjects.splice(ind, 1); // https://stackoverflow.com/a/5767357
                 gameData.energyStored += 50;
             }
             else
             {
-                this.x += mov.x;
-                this.y += mov.y;
+                this.x += movX;
+                this.y += movY;
             }
         }
     }
 
     #moveToBank()
     {
+        console.log("Moving to energy bank");
         this.#movingToBank = true;
     }
 }
