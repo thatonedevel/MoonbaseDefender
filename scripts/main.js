@@ -211,6 +211,11 @@ function _update()
         gameObjectsCollection.projectiles[i].update();
     }
 
+    for (let i = 0; i < gameObjectsCollection.energyObjects.length; i++)
+    {
+        gameObjectsCollection.energyObjects[i].update();
+    }
+
     // input
     if (currentGameState == GameStates.PLAYING)
     {
@@ -236,6 +241,13 @@ function fileLoadFailListener(file)
 function fileLoadedListener(file)
 {
     console.log("File ", file, " loaded successfully");
+}
+
+function swapArrElems(arr, indA, indB)
+{
+    let tmp = arr[indA];
+    arr[indA] = arr[indB];
+    arr[indB] = tmp; 
 }
 
 window.addEventListener("load", main);
