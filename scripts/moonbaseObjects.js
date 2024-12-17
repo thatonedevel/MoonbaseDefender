@@ -16,6 +16,60 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+class Vec2
+{
+    constructor(x, y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    magnitude()
+    {
+        return Math.sqrt(this.x**2 + this.y**2);
+    }
+
+    normalised()
+    {
+        let newX = x / this.magnitude();
+        let newY = y / this.magnitude();
+
+        return new Vec2(newX, newY);
+    }
+
+    // arithmetic
+    add(op)
+    {
+        this.x += op.x;
+        this.y += op.y;
+    }
+
+    sub(op)
+    {
+        this.x -= op.x;
+        this.y -= op.y;
+    }
+
+    scalarMult(scalarVal)
+    {
+        this.x *= scalarVal;
+        this.y *= scalarVal;
+    }
+
+    scalarDiv(scalarVal)
+    {
+        this.x /= scalarVal;
+        this.y /= scalarVal;
+    }
+
+    static lerp(a, b, t)
+    {
+
+    }
+
+
+}
+
 function checkDistBetweenGameObjects(objA, objB)
 {
     /**
@@ -30,7 +84,14 @@ function checkDistBetweenGameObjects(objA, objB)
     return Math.sqrt(xDist**2 + yDist**2);
 }
 
-class BaseObject extends Phaser.GameObjects.Sprite
+function lerp(ax, ay, bx, by, percent)
+{
+    // performs linear interpolation between points a and b
+    // returns an object containing an x and y value representing the interpolated value
+    
+}
+
+class BaseObject extends Phaser.Physics.Arcade.Sprite
 {
     constructor(scene, texture, xPos, yPos)
     {
@@ -289,9 +350,50 @@ class HoloFence extends Buildable
 
 class BasicEnemy extends BaseObject
 {
-    constructor()
+    // timer to control enemy state
+    #lastShotTime = -1;
+
+    #currentState = 0;
+    #enemyStates = 
     {
-        
+        IDLE: 0,
+        MOVING: 1,
+        ATTACKING: 2
+    };
+
+    // movement info
+    #nextTileX = 0;
+    #nextTileY = 0;
+
+    #nextTileRow = 0;
+    #nextTileCol = 0;
+
+
+    constructor(scene, texture, tileX, tileY)
+    {
+        // determine x and y pos
+        let xPos = gameObjectsCollection.board[tileY][tileX].x;
+        let yPos = gameObjectsCollection.board[tileY][tileX].y;
+
+        // set next row / col
+        this.#nextTileCol = gameObjectsCollection.board[tileY][tileX].nextTileTranslation.x;
+        this.#nextTileRow = gameObjectsCollection.board[tileY][tileX].nextTileTranslation.y;
+
+        super(scene, texture, nextTile_, xPos, yPos);
+        this.health = 10;
+        this.nextTile = nextTile_;
+        this.speed = 5;
+    }
+
+    update()
+    {
+        switch (this.#currentState)
+        {
+            case 1:
+                // move to next tile
+                
+                break;
+        }
     }
 }
 
