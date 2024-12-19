@@ -16,6 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+function clamp(min, max, num)
+{
+    res = num;
+    if (res > max)
+        res = max;
+    else if (res < min)
+        res = min;
+
+    return res;
+}
+
 class Vec2
 {
     constructor(x, y)
@@ -64,7 +75,11 @@ class Vec2
 
     static lerp(a, b, t)
     {
-
+        let trans = b.sub(a);
+        let transUnit = trans.scalarMult(t);
+        let res = new Vec2(a.x, a.y);
+        res.add(transUnit);
+        return res;
     }
 
 
@@ -84,14 +99,7 @@ function checkDistBetweenGameObjects(objA, objB)
     return Math.sqrt(xDist**2 + yDist**2);
 }
 
-function lerp(ax, ay, bx, by, percent)
-{
-    // performs linear interpolation between points a and b
-    // returns an object containing an x and y value representing the interpolated value
-    
-}
-
-class BaseObject extends Phaser.Physics.Arcade.Sprite
+class BaseObject extends Sprite
 {
     constructor(scene, texture, xPos, yPos)
     {
@@ -368,21 +376,27 @@ class BasicEnemy extends BaseObject
     #nextTileRow = 0;
     #nextTileCol = 0;
 
+    #currentTilePos;
+    #currentTile = null;
 
     constructor(scene, texture, tileX, tileY)
     {
         // determine x and y pos
-        let xPos = gameObjectsCollection.board[tileY][tileX].x;
-        let yPos = gameObjectsCollection.board[tileY][tileX].y;
+        this.#currentTile = gameObjectsCollection.board[tileY][tileX];
+        let xPos = this.#currentTile.x;
+        let yPos = this.#currentTile.y;
 
         // set next row / col
-        this.#nextTileCol = gameObjectsCollection.board[tileY][tileX].nextTileTranslation.x;
-        this.#nextTileRow = gameObjectsCollection.board[tileY][tileX].nextTileTranslation.y;
+        this.#nextTileCol = tileX + this.#currentTile.nextTileTranslation.y;
+        this.#nextTileRow = tileY + this.#currentTile.nextTileTranslation.y;
+
+        let nextTile_ = gameObjectsCollection.board[this.#nextTileRow][this.#nextTileRow];
 
         super(scene, texture, nextTile_, xPos, yPos);
         this.health = 10;
         this.nextTile = nextTile_;
         this.speed = 5;
+        this.#currentTilePos = new Vec2(xPos, yPos);
     }
 
     update()
@@ -391,9 +405,38 @@ class BasicEnemy extends BaseObject
         {
             case 1:
                 // move to next tile
-                
+                let movPer = this.#calculateMovementPercent(new Vec2(this.#nextTileX, this.#nextTileY));
+                if (movPer === 1)
+                {
+                    // we have reached the next tile
+                    this.x = this.#nextTileX;
+                    this.y = this.#nextTileY;
+                    // get the next tile
+                    let t = this.nextTile.nextTileTranslation;
+                    this.#nextTileRow += t.y;
+                    this.#nextTileCol += t.x;
+
+                    this.#currentTile = this.nextTile;
+                    // set the next tile
+                    this.nextTile = gameObjectsCollection.board[this.#nextTileRow][this.#nextTileCol];
+                }
+                else
+                {
+
+                }
                 break;
         }
+    }
+
+    #calculateMovementPercent(endPos)
+    {
+        let totalMove = new Vec2(endPos.x, endPos.y);
+        totalMove.sub(this.#currentTilePos);
+        let totalDist = totalMove.magnitude();
+        let percent = this.speed / totalDist;
+        percent = clamp(0, 1, percent);
+
+        return percent;
     }
 }
 
