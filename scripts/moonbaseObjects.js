@@ -422,7 +422,10 @@ class BasicEnemy extends BaseObject
                 }
                 else
                 {
-
+                    // calculate movement %
+                    let per = this.#calculateMovementPercent(new Vec2(this.nextTile.x, this.nextTile.y));
+                    // lerp to next position
+                    let nextPos = Vec2.lerp(new Vec2(this.x, this.y), new Vec2(this.nextTile.x, this.nextTile.y));
                 }
                 break;
         }
