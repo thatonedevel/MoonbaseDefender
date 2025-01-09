@@ -102,6 +102,15 @@ function main()
             create: _create,
             preload: _preload,
             update: _update,
+        },
+        physics: 
+        {
+            default: "arcade", // omg arcade ganon hiiii!!!
+            arcade:
+            {
+                gravity: 0,
+                debug: false
+            }
         }
     };
 
