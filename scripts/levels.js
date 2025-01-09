@@ -148,10 +148,11 @@ function loadLevel(levelIndex, scene)
                     newTile = new Tile(scene, tileX, tileY, "tilePlaceable" + currentVariant, true);
                     gameObjectsCollection.board[row].push(newTile);
                     break;
-                case 1:
+                case 1: // enemy spawn point & straight tile
                     newTile = new Tile(scene, tileX, tileY, "tileTrackStraight" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
                     newTile.nextTileTranslation = {x:0, y:1};
+                    gameData.spawnLocations.push({spawnRow: row, spawnCol: gameObjectsCollection.board[row].length - 1});
                     break;
 
                 case 2:
