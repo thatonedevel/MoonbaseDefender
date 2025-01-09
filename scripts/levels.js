@@ -43,15 +43,39 @@ const LEVELS = [
 
 class Tile extends Phaser.GameObjects.Sprite
 {
+    #occupants = [];
     constructor(scene, tileX, tileY, texture, forPlayer = false)
     {
         super(scene, tileX, tileY, texture)
-        this.occupant = null;
         this.isTurretSpace = forPlayer;
         this.nextTileTranslation = null;
         this.setScale(0.5, 0.5);
         scene.add.existing(this);
     }
+
+    addOccupant(newOccupant)
+    {
+        this.#occupants.push(newOccupant)
+    }
+
+    removeOccupant(target)
+    {
+        for (let i = 0; i < this.#occupants.length; i++)
+        {
+            if (this.#occupants[i] === target)
+            {
+                this.occupants.splice(0, 1);
+                break;
+            }
+        }
+    }
+
+    emptyTile()
+    {
+        this.occupant.length = 0;
+    }
+
+
 }
 
 function loadLevel(levelIndex, scene)
