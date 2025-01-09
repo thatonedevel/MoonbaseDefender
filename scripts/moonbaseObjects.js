@@ -318,6 +318,12 @@ class SolarPanel extends Buildable
 class BasicTurret extends Buildable
 {
     static cost = 75;
+
+    constructor(scene, texture, xPos, yPos)
+    {
+        super(scene, texture, xPos, yPos);
+        scene.physics.add.existing(this);
+    }
 }
 
 class ShieldGenerator extends Buildable
@@ -370,20 +376,19 @@ class BasicEnemy extends BaseObject
 
     constructor(scene, texture, tileX, tileY)
     {
+        super(scene, texture, gameObjectsCollection.board[tileY][tileX].x, gameObjectsCollection.board[tileY][tileX].y);
+        // add the object to the scene physics group
+        scene.physics.add.existing(this);
         // takes the scene, texture and tile col / row
         this.__currentState = this.#enemyStates.MOVING;
         this.__currentTile = gameObjectsCollection.board[tileY][tileX];
         this.__row = tileY;
         this.__col = tileX;
 
-        let spawnX = this.__currentTile.x;
-        let spawnY = this.__currentTile.y;
-        this.__currentTile.setOccupant(this);
+
+        this.__currentTile.addOccupant(this);
 
         this.speed = 5; // should be public, can be slowed down
-
-        super(scene, texture, spawnX, spawnY);
-        
     }
 
     update()
@@ -470,7 +475,8 @@ class EnemiesFactory
 
     static createEnemy(enemyType, scene, spawnRow, spawnCol)
     {
-        let newEnemy = this.#enemies[enemyType](scene, spawnRow, spawnCol);
+        console.log("Enemy type", enemyType);
+        let newEnemy = this.#enemies[enemyType](scene, enemyType, spawnRow, spawnCol);
         return newEnemy;
     }
 }

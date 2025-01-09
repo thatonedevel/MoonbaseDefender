@@ -46,9 +46,9 @@ const ENEMIES_MAP =
         let roll = Math.floor(Math.random() * 100) // 0-99;
         for (let enemyIndex = 0; enemyIndex < this.levels[level].ENEMIES.length; enemyIndex++)
         {
-            if (this.levels[level].ENEMIES[enemyIndex].weight < roll)
+            if (this.levels[level].ENEMIES[enemyIndex].weight > roll)
             {
-                key = this.levels[level].ENEMIES[enemyIndex];
+                key = this.levels[level].ENEMIES[enemyIndex].name;
                 break;
             }
         }
@@ -235,6 +235,10 @@ function _preload()
     //this.load.image("solarPanel", "../assets/sprites/buildables/solarpanel.png");
     this.load.spritesheet(SPRITE_SOLAR_PANEL_KEY, "../assets/sprites/buildables/solarpanel.png", {frameWidth:128, frameHeight:128, startFrame:0, endFrame:2});
     this.load.spritesheet(SPRITE_BASIC_TURRET_KEY, "../assets/sprites/buildables/turret_sheet.png", {frameWidth:68, frameHeight:128, startFrame:0, endFrame:8});
+    
+    // enemies
+    this.load.image(ENEMIES_BASIC_ENEMY, "../assets/sprites/enemies/basicufo.png");
+    
     // other
     this.load.image(SPRITE_ENERGY_KEY, "../assets/sprites/energy.png");
 }

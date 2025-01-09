@@ -64,7 +64,7 @@ class Tile extends Phaser.GameObjects.Sprite
         {
             if (this.#occupants[i] === target)
             {
-                this.occupants.splice(0, 1);
+                this.#occupants.splice(0, 1);
                 break;
             }
         }
