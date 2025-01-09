@@ -99,7 +99,7 @@ function checkDistBetweenGameObjects(objA, objB)
     return Math.sqrt(xDist**2 + yDist**2);
 }
 
-class BaseObject extends Physics.Arcade.Sprite
+class BaseObject extends Phaser.Physics.Arcade.Sprite
 {
     constructor(scene, texture, xPos, yPos)
     {
@@ -194,13 +194,13 @@ class BuildableGhost extends BaseObject
             {
                 if (gameObjectsCollection.board[row].length > col)
                 {
-                    if (gameObjectsCollection.board[row][col].occupant === null)
+                    if (gameObjectsCollection.board[row][col].isEmpty)
                     {
                         console.log("Placing builable");
                         let newStructure = BuildablesFactory.createNewBuildable(this.scene, this.#buildableName, this.x, this.y);
                         gameObjectsCollection.turrets.push(newStructure);
                         // set the occupant of the tile to the new turret
-                        gameObjectsCollection.board[row][col].setOccupant(newStructure);
+                        gameObjectsCollection.board[row][col].addOccupant(newStructure);
 
                         // disable self
                         this.setVisible(false);
@@ -434,7 +434,6 @@ class BasicProjectile extends BaseObject
 
 class BuildablesFactory
 {
-
     static #__BuildablesObj = 
     {
         solarPanel: function(scene, name, xPos, yPos) { return new SolarPanel(scene, name, xPos, yPos); },
@@ -462,5 +461,16 @@ class BuildablesFactory
     static getBuildableCost(name)
     {
         return this.COST_MAP[name];
+    }
+}
+
+class EnemiesFactory
+{
+    static #enemies = {basicEnemy: function(scene, texture, spawnRow, spawnCol) {return new BasicEnemy(scene, texture, spawnCol, spawnRow);}};
+
+    static createEnemy(enemyType, scene, spawnRow, spawnCol)
+    {
+        let newEnemy = this.#enemies[enemyType](scene, spawnRow, spawnCol);
+        return newEnemy;
     }
 }
