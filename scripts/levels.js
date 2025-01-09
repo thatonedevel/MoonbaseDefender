@@ -72,9 +72,13 @@ class Tile extends Phaser.GameObjects.Sprite
 
     emptyTile()
     {
-        this.occupant.length = 0;
+        this.#occupants.length = 0;
     }
 
+    get isEmpty()
+    {
+        return this.#occupants.length === 0;
+    }
 
 }
 
