@@ -99,7 +99,7 @@ function checkDistBetweenGameObjects(objA, objB)
     return Math.sqrt(xDist**2 + yDist**2);
 }
 
-class BaseObject extends Sprite
+class BaseObject extends Physics.Arcade.Sprite
 {
     constructor(scene, texture, xPos, yPos)
     {
@@ -200,7 +200,7 @@ class BuildableGhost extends BaseObject
                         let newStructure = BuildablesFactory.createNewBuildable(this.scene, this.#buildableName, this.x, this.y);
                         gameObjectsCollection.turrets.push(newStructure);
                         // set the occupant of the tile to the new turret
-                        gameObjectsCollection.board[row][col].occupant = newStructure;
+                        gameObjectsCollection.board[row][col].setOccupant(newStructure);
 
                         // disable self
                         this.setVisible(false);
@@ -361,7 +361,6 @@ class BasicEnemy extends BaseObject
     // timer to control enemy state
     #lastShotTime = -1;
 
-    #currentState = 0;
     #enemyStates = 
     {
         IDLE: 0,
@@ -369,77 +368,59 @@ class BasicEnemy extends BaseObject
         ATTACKING: 2
     };
 
-    // movement info
-    #nextTileX = 0;
-    #nextTileY = 0;
-
-    #nextTileRow = 0;
-    #nextTileCol = 0;
-
-    #currentTilePos;
-    #currentTile = null;
-
     constructor(scene, texture, tileX, tileY)
     {
-        // determine x and y pos
-        this.#currentTile = gameObjectsCollection.board[tileY][tileX];
-        let xPos = this.#currentTile.x;
-        let yPos = this.#currentTile.y;
+        // takes the scene, texture and tile col / row
+        this.__currentState = this.#enemyStates.MOVING;
+        this.__currentTile = gameObjectsCollection.board[tileY][tileX];
+        this.__row = tileY;
+        this.__col = tileX;
 
-        // set next row / col
-        this.#nextTileCol = tileX + this.#currentTile.nextTileTranslation.y;
-        this.#nextTileRow = tileY + this.#currentTile.nextTileTranslation.y;
+        let spawnX = this.__currentTile.x;
+        let spawnY = this.__currentTile.y;
+        this.__currentTile.setOccupant(this);
 
-        let nextTile_ = gameObjectsCollection.board[this.#nextTileRow][this.#nextTileRow];
+        this.speed = 5; // should be public, can be slowed down
 
-        super(scene, texture, nextTile_, xPos, yPos);
-        this.health = 10;
-        this.nextTile = nextTile_;
-        this.speed = 5;
-        this.#currentTilePos = new Vec2(xPos, yPos);
+        super(scene, texture, spawnX, spawnY);
+        
     }
 
     update()
     {
-        switch (this.#currentState)
+        if (this.__isMoving)
         {
-            case 1:
-                // move to next tile
-                let movPer = this.#calculateMovementPercent(new Vec2(this.#nextTileX, this.#nextTileY));
-                if (movPer === 1)
-                {
-                    // we have reached the next tile
-                    this.x = this.#nextTileX;
-                    this.y = this.#nextTileY;
-                    // get the next tile
-                    let t = this.nextTile.nextTileTranslation;
-                    this.#nextTileRow += t.y;
-                    this.#nextTileCol += t.x;
-
-                    this.#currentTile = this.nextTile;
-                    // set the next tile
-                    this.nextTile = gameObjectsCollection.board[this.#nextTileRow][this.#nextTileCol];
-                }
-                else
-                {
-                    // calculate movement %
-                    let per = this.#calculateMovementPercent(new Vec2(this.nextTile.x, this.nextTile.y));
-                    // lerp to next position
-                    let nextPos = Vec2.lerp(new Vec2(this.x, this.y), new Vec2(this.nextTile.x, this.nextTile.y));
-                }
-                break;
+            // tween towards next tile
+            let dist = checkDistBetweenGameObjects(this, this.__currentTile);
+            if (dist <= 10) // <= 10 px
+            {
+                this.__isMoving = false;
+            }
+            else
+            {
+                //move towards the target (current tile)
+                this.body.setVelocityX(this.speed * gameData.deltaTime);
+                this.body.setVelocityY(this.speed * gameData.deltaTime);
+            }
         }
-    }
+        else
+        {
+            switch (this.__currentState)
+            {
+                case 1:
+                    // get next tile enemy needs to move to and set
+                    this.__row += this.__currentTile.nextTileTranslation.y;
+                    this.__col += this.__currentTile.nextTileTranslation.x;
 
-    #calculateMovementPercent(endPos)
-    {
-        let totalMove = new Vec2(endPos.x, endPos.y);
-        totalMove.sub(this.#currentTilePos);
-        let totalDist = totalMove.magnitude();
-        let percent = this.speed / totalDist;
-        percent = clamp(0, 1, percent);
-
-        return percent;
+                    this.__currentTile.removeOccupant(this);
+                    this.__currentTile = gameObjectsCollection.board[this.__row][this.__col];
+                    this.__currentTile.addOccupant(this);
+                    this.__isMoving = true;
+                    
+                    break;
+            }
+        }
+        
     }
 }
 
