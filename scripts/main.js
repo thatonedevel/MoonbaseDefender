@@ -26,6 +26,42 @@ const SPRITE_ENERGY_KEY = "energy";
 const ANIMATION_ENERGY_PRODUCE_KEY = "energyProduce";
 const ANIMATION_TURRET_FIRE_KEY = "turretFire";
 
+// enemy keys
+const ENEMIES_BASIC_ENEMY = "basicEnemy";
+
+// enemies selection per level
+const ENEMIES_MAP = 
+{
+    levels:
+    [
+        {
+            ENEMIES: [{name:ENEMIES_BASIC_ENEMY, weight: 100}],
+            SPAWN_COOLDOWN: 5
+        }
+    ],
+
+    getEnemy(level)
+    {
+        key = null;
+        let roll = Math.floor(Math.random() * 100) // 0-99;
+        for (let enemyIndex = 0; enemyIndex < this.levels[level].ENEMIES.length; enemyIndex++)
+        {
+            if (this.levels[level].ENEMIES[enemyIndex].weight < roll)
+            {
+                key = this.levels[level].ENEMIES[enemyIndex];
+                break;
+            }
+        }
+
+        return key;
+    },
+
+    getNextSpawnTime(level)
+    {
+        return this.levels[level].SPAWN_COOLDOWN + (Date.now()) / 1000;
+    }
+};
+
 // object for game states
 const GameStates = 
 {
@@ -87,7 +123,10 @@ const gameData =
     energyStored: 25,
     deltaTime: 0,
     bannerEnableTime: 0,
-    BANNER_DURATION: 3000
+    BANNER_DURATION: 3000,
+    level: 1,
+    nextEnemySpawnTime: -10,
+    spawnLocations: []
 };
 
 function main()
@@ -122,7 +161,7 @@ function main()
 function _create()
 {
     // create base game objects
-    loadLevel(0, this);
+    loadLevel(gameData.level - 1, this);
     // add input maps to game input object
     MoonbaseInput.mouse = this.input.activePointer;
     MoonbaseInput.directionKeys = this.input.keyboard.createCursorKeys();
@@ -226,8 +265,25 @@ function _update()
     }
 
     // input
-    if (currentGameState == GameStates.PLAYING)
+    if (currentGameState === GameStates.PLAYING)
     {
+        if (gameData.nextEnemySpawnTime === -10)
+        {
+            gameData.nextEnemySpawnTime = Date.now() / 1000; // seconds until next enemy spawn
+        }
+        else if (gameData.nextEnemySpawnTime <= Date.now() / 1000)
+        {
+            // enemy needs to be spawned
+            let loc = gameData.spawnLocations[Math.floor(Math.random() * gameData.spawnLocations.length)];
+            let key = ENEMIES_MAP.getEnemy(gameData.level - 1);
+            let enemy = EnemiesFactory.createEnemy(key, this, loc.spawnRow, loc.spawnCol);
+            // add enemy to the enemies array
+            gameObjectsCollection.enemies.push(enemy);
+
+            // set next spawn time
+            gameData.nextEnemySpawnTime = ENEMIES_MAP.getNextSpawnTime(gameData.level - 1);
+        }
+
         buildableGhost.update();
         updateBanner();
     }
