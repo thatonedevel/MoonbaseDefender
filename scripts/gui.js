@@ -214,7 +214,7 @@ class AlertBanner extends Phaser.GameObjects.Text
         this.scene.time.addEvent({delay:duration, callback:this.#disable});
     }
 
-    update()
+    updateObj()
     {
         if (this.active && this.visible)
         {

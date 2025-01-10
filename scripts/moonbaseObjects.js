@@ -115,7 +115,7 @@ class BaseObject extends Phaser.Physics.Arcade.Sprite
         scene.add.existing(this);
     }
 
-    update()
+    updateObj()
     {
 
     }
@@ -150,7 +150,7 @@ class BuildableGhost extends BaseObject
         this.#buildableName = name;
     }
 
-    update()
+    updateObj()
     {
         //let nearestTile = null;
         // set position to nearest grid tile
@@ -226,7 +226,7 @@ class EnergyUnit extends BaseObject
         this.on("pointerdown", this.#moveToBank);
     }
 
-    update()
+    updateObj()
     {
         if (this.#movingToBank && this.active)
         {
@@ -294,7 +294,7 @@ class SolarPanel extends Buildable
         this.on("animationcomplete", this.#onAnimationEnd)
     }
 
-    update()
+    updateObj()
     {
         //console.log("Being updated");
         if ((Date.now() - this.__cooldownStartTime) / 1000 >= this.cooldown && this.#animCooldownStarted)
@@ -391,7 +391,7 @@ class BasicEnemy extends BaseObject
         this.speed = 5; // should be public, can be slowed down
     }
 
-    update()
+    updateObj()
     {
         if (this.__isMoving)
         {
