@@ -250,22 +250,22 @@ function _update()
     // call update on all game objects
     for (let i = 0; i < gameObjectsCollection.turrets.length; i++)
     {
-        gameObjectsCollection.turrets[i].update();
+        gameObjectsCollection.turrets[i].updateObj();
     }
 
     for (let i = 0; i < gameObjectsCollection.enemies.length; i++)
     {
-        gameObjectsCollection.enemies[i].update();
+        gameObjectsCollection.enemies[i].updateObj();
     }
 
     for (let i = 0; i < gameObjectsCollection.projectiles.length; i++)
     {
-        gameObjectsCollection.projectiles[i].update();
+        gameObjectsCollection.projectiles[i].updateObj();
     }
 
     for (let i = 0; i < gameObjectsCollection.energyObjects.length; i++)
     {
-        gameObjectsCollection.energyObjects[i].update();
+        gameObjectsCollection.energyObjects[i].updateObj();
     }
 
     // input
@@ -288,7 +288,7 @@ function _update()
             gameData.nextEnemySpawnTime = ENEMIES_MAP.getNextSpawnTime(gameData.level - 1);
         }
 
-        buildableGhost.update();
+        buildableGhost.updateObj();
         updateBanner();
     }
 
