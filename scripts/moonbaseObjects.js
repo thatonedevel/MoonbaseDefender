@@ -42,8 +42,8 @@ class Vec2
 
     normalised()
     {
-        let newX = x / this.magnitude();
-        let newY = y / this.magnitude();
+        let newX = this.x / this.magnitude();
+        let newY = this.y / this.magnitude();
 
         return new Vec2(newX, newY);
     }
@@ -385,47 +385,60 @@ class BasicEnemy extends BaseObject
         this.__row = tileY;
         this.__col = tileX;
 
+        this.__isMoving = true;
 
-        this.__currentTile.addOccupant(this);
+        // set next tile
+        this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
 
-        this.speed = 5; // should be public, can be slowed down
+        this.speed = 50; // should be public, can be slowed down
     }
 
     updateObj()
     {
         if (this.__isMoving)
         {
-            // tween towards next tile
-            let dist = checkDistBetweenGameObjects(this, this.__currentTile);
-            if (dist <= 10) // <= 10 px
+            if (checkDistBetweenGameObjects(this, this.__nextTile) > 2)
             {
-                this.__isMoving = false;
+                // move towards next tile
+                // get direction to next tile
+                let dirX = this.__nextTile.x - this.x;
+                let dirY = this.__nextTile.y - this.y;
+                
+                let movementVec = new Vec2(dirX, dirY);
+                let dirAbs = movementVec.normalised();
+                // convert to mag of 1
+
+                this.body.setVelocityX(dirAbs.x * this.speed);
+                this.body.setVelocityY(dirAbs.y * this.speed);
             }
             else
             {
-                //move towards the target (current tile)
-                this.body.setVelocityX(this.speed * gameData.deltaTime);
-                this.body.setVelocityY(this.speed * gameData.deltaTime);
+                this.x = this.__nextTile.x;
+                this.y = this.__nextTile.y;
+                this.__isMoving = false;
             }
         }
         else
         {
-            switch (this.__currentState)
+            switch(this.__currentState)
             {
-                case 1:
-                    // get next tile enemy needs to move to and set
+                case this.#enemyStates.MOVING:
+                    // update tile status
+                    this.__currentTile.removeOccupant(this);
+                    // update row / col
                     this.__row += this.__currentTile.nextTileTranslation.y;
                     this.__col += this.__currentTile.nextTileTranslation.x;
 
-                    this.__currentTile.removeOccupant(this);
-                    this.__currentTile = gameObjectsCollection.board[this.__row][this.__col];
+                    this.__currentTile = this.__nextTile;
                     this.__currentTile.addOccupant(this);
+
+                    // get next tile
+                    this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
+                    // reset movement flag
                     this.__isMoving = true;
-                    
                     break;
             }
         }
-        
     }
 }
 
