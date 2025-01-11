@@ -48,7 +48,7 @@ class Tile extends Phaser.GameObjects.Sprite
     {
         super(scene, tileX, tileY, texture)
         this.isTurretSpace = forPlayer;
-        this.nextTileTranslation = null;
+        this.nextTileTranslation = {x: 0, y:0};
         this.setScale(0.5, 0.5);
         scene.add.existing(this);
     }
@@ -192,7 +192,7 @@ function loadLevel(levelIndex, scene)
                 case 8:
                     newTile = new Tile(scene, tileX, tileY, "tileTrackCurve" + currentVariant);
                     gameObjectsCollection.board[row].push(newTile);
-                    newTile.nextTileTranslation = {x: 1, y:0};
+                    newTile.nextTileTranslation = {x: 1, y: 0};
                     newTile.angle = 180;
                     break;
                 case 9:
