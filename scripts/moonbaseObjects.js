@@ -124,6 +124,11 @@ class BaseObject extends Phaser.Physics.Arcade.Sprite
     {
         this.health += amt;        
     }
+
+    purge()
+    {
+
+    }
 }
 
 class BuildableGhost extends BaseObject
@@ -258,6 +263,20 @@ class EnergyUnit extends BaseObject
         }
     }
 
+    purge()
+    {
+        for (let i = 0; i < gameObjectsCollection.energyObjects.length; i++)
+        {
+            if (gameObjectsCollection.energyObjects[i] === this)
+            {
+                gameObjectsCollection.energyObjects.splice(i, 1);
+                break;
+            }
+        }
+
+        this.destroy();
+    }
+
     #moveToBank()
     {
         console.log("Moving to energy bank");
@@ -390,32 +409,45 @@ class BasicEnemy extends BaseObject
         // set next tile
         this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
 
-        this.speed = 50; // should be public, can be slowed down
+        this.speed = 100; // should be public, can be slowed down
+        this.__reachedTrackEnd = false;
     }
 
     updateObj()
     {
         if (this.__isMoving)
         {
-            if (checkDistBetweenGameObjects(this, this.__nextTile) > 2)
+            if (!this.__reachedTrackEnd)
             {
-                // move towards next tile
-                // get direction to next tile
-                let dirX = this.__nextTile.x - this.x;
-                let dirY = this.__nextTile.y - this.y;
-                
-                let movementVec = new Vec2(dirX, dirY);
-                let dirAbs = movementVec.normalised();
-                // convert to mag of 1
+                if (checkDistBetweenGameObjects(this, this.__nextTile) > 2)
+                {
+                    // move towards next tile
+                    // get direction to next tile
+                    let dirX = this.__nextTile.x - this.x;
+                    let dirY = this.__nextTile.y - this.y;
+                    
+                    let movementVec = new Vec2(dirX, dirY);
+                    let dirAbs = movementVec.normalised();
+                    // convert to mag of 1
 
-                this.body.setVelocityX(dirAbs.x * this.speed);
-                this.body.setVelocityY(dirAbs.y * this.speed);
+                    this.body.setVelocityX(dirAbs.x * this.speed);
+                    this.body.setVelocityY(dirAbs.y * this.speed);
+                }
+                else
+                {
+                    this.x = this.__nextTile.x;
+                    this.y = this.__nextTile.y;
+                    this.__isMoving = false;
+                }
             }
             else
             {
-                this.x = this.__nextTile.x;
-                this.y = this.__nextTile.y;
-                this.__isMoving = false;
+                // check distance from x or y boundaries
+                if (this.x >= this.scene.game.config.width + 32 || this.x <= -32 || this.y > 32 || this.y < (-1 * this.scene.game.config.height) - 32)
+                {
+                    console.log("purging");
+                    this.purge();
+                }
             }
         }
         else
@@ -432,13 +464,51 @@ class BasicEnemy extends BaseObject
                     this.__currentTile = this.__nextTile;
                     this.__currentTile.addOccupant(this);
 
-                    // get next tile
-                    this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
-                    // reset movement flag
-                    this.__isMoving = true;
+                    // check if next tile exists
+                    if (this.__row < gameObjectsCollection.board.length - 1 && this.__col < gameObjectsCollection.board[0].length - 1)
+                    {
+                        // get next tile
+                        this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
+                        // reset movement flag
+                        this.__isMoving = true;
+                    }
+                    else
+                    {
+                        // moving outside the game world
+                        this.__reachedTrackEnd = true;
+                        this.__isMoving = true;
+                    } 
                     break;
             }
         }
+    }
+
+    purge()
+    {
+        // removes all references to object for it to be removed from memory when destory is called
+        if (this.__currentTile !== null)
+        {
+            this.__currentTile.removeOccupant(this);
+        }
+
+        if (this.__nextTile !== null)
+        {
+            // call remove just in case it exists in both
+            this.__nextTile.removeOccupant(this);
+        }
+
+        // remove self from game objects collection
+        for (let i = 0; i < gameObjectsCollection.enemies.length; i++)
+        {
+            if (gameObjectsCollection.enemies[i] === this)
+            {
+                gameObjectsCollection.enemies.splice(i, 1);
+                break;
+            }
+        }
+
+        // call GameObject.Destroy
+        this.destroy();
     }
 }
 
