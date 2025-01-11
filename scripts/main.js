@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+// TODO: remove flag when enemy movement debugging is done
+let hasEnemy = false;
+
+
 // sprites
 const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
 const SPRITE_BASIC_TURRET_KEY = "basicTurret";
@@ -275,7 +279,7 @@ function _update()
         {
             gameData.nextEnemySpawnTime = Date.now() / 1000; // seconds until next enemy spawn
         }
-        else if (gameData.nextEnemySpawnTime <= Date.now() / 1000)
+        else if (gameData.nextEnemySpawnTime <= Date.now() / 1000 && !hasEnemy)
         {
             // enemy needs to be spawned
             let loc = gameData.spawnLocations[Math.floor(Math.random() * gameData.spawnLocations.length)];
@@ -286,6 +290,7 @@ function _update()
 
             // set next spawn time
             gameData.nextEnemySpawnTime = ENEMIES_MAP.getNextSpawnTime(gameData.level - 1);
+            hasEnemy = true;
         }
 
         buildableGhost.updateObj();
