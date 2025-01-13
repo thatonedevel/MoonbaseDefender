@@ -24,10 +24,12 @@ const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
 const SPRITE_BASIC_TURRET_KEY = "basicTurret";
 const SPRIRE_SHIELD_GENERATOR_KEY = "shieldGenerator";
 const SPRITE_ENERGY_KEY = "energy";
+const SPRITE_BULLET_KEY = "bullet";
 
 // animations
 const ANIMATION_ENERGY_PRODUCE_KEY = "energyProduce";
 const ANIMATION_TURRET_FIRE_KEY = "turretFire";
+const ANIMATION_BASIC_ENEMY_DAMAGE = "basicEnemyDamage";
 
 // enemy keys
 const ENEMIES_BASIC_ENEMY = "basicEnemy";
@@ -165,7 +167,7 @@ function main()
 function _create()
 {
     // cap update rate at 60
-    this.physics.world.setFPS(60);
+    this.physics.world.setFPS(60); // https://phaser.discourse.group/t/different-game-speed-depending-on-monitor-refresh-rate/7231/2
     // create base game objects
     loadLevel(gameData.level - 1, this);
     // add input maps to game input object
@@ -176,7 +178,9 @@ function _create()
     buildableGhost = new BuildableGhost(this, SPRITE_SOLAR_PANEL_KEY, 32, 32);
     // add the buttons for creating the buildables
     // create game animations
-    this.anims.create({key:ANIMATION_ENERGY_PRODUCE_KEY, frames:"solarPanel", frameRate:6});
+    this.anims.create({key:ANIMATION_ENERGY_PRODUCE_KEY, frames:SPRITE_SOLAR_PANEL_KEY, frameRate:6});
+    this.anims.create({key:ANIMATION_BASIC_ENEMY_DAMAGE, frames:ENEMIES_BASIC_ENEMY, frameRate:6});
+    this.anims.create({key:ANIMATION_TURRET_FIRE_KEY, frames:SPRITE_BASIC_TURRET_KEY, frameRate:6});
 
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 540, [createSolarPanel]));
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 540, [createBasicTurret]));
@@ -243,10 +247,11 @@ function _preload()
     this.load.spritesheet(SPRITE_BASIC_TURRET_KEY, "../assets/sprites/buildables/turret_sheet.png", {frameWidth:68, frameHeight:128, startFrame:0, endFrame:8});
     
     // enemies
-    this.load.image(ENEMIES_BASIC_ENEMY, "../assets/sprites/enemies/basicufo.png");
+    this.load.spritesheet(ENEMIES_BASIC_ENEMY, "../assets/sprites/enemies/basicufo.png", {frameWidth:128, frameHeight:128, startFrame:0, endFrame:2});
     
     // other
     this.load.image(SPRITE_ENERGY_KEY, "../assets/sprites/energy.png");
+    this.load.image(SPRITE_BULLET_KEY, "../assets/sprites/bullet.png");
 }
 
 function _update(time, delta)
