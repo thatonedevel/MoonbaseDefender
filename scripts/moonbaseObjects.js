@@ -99,6 +99,21 @@ function checkDistBetweenGameObjects(objA, objB)
     return Math.sqrt(xDist**2 + yDist**2);
 }
 
+function compareHorizontalAndVerticalDistanceToThreshold(objA, objB, threshold)
+{
+    /**
+     * @param {Phaser.GameObjects.GameObject} objA
+     * @param {Phaser.GameObjects.GameObject} objB
+     * @returns {boolean}
+     */
+    // checks that the x and y distances between two provided game objects are below or equal to a given threshold
+
+    let xDist = Math.abs(objB - objA);
+    let yDist = Math.abs(objB - objA);
+
+    return xDist <= threshold && yDist <= threshold;
+}
+
 class BaseObject extends Phaser.Physics.Arcade.Sprite
 {
     constructor(scene, texture, xPos, yPos)
@@ -361,8 +376,9 @@ class BasicTurret extends Buildable
     {
         super(scene, texture, xPos, yPos);
         scene.physics.add.existing(this);
-        this.__range = 1;
-        this.__closestEnemy = null;
+        this.body.onOverlap = true;
+        this.__range = 96;
+        this.__targetEnemy = null;
     }
 
     updateObj()
@@ -385,21 +401,38 @@ class BasicTurret extends Buildable
 
     __findTarget()
     {
-        // stops if current target enemy is still in range
+        let nearest = null;
 
-        let occ = this.__getTileOccupants();
-        if (this.__closestEnemy !== null)
-            if (occ.includes(this.__closestEnemy))
-                return;
-
-        for (let occupantIndex = 0; occupantIndex < occ.length; occupantIndex++)
+        if (this.__targetEnemy !== null)
         {
-            if (occ[occupantIndex] !== null)
+            // check enemy is still in range
+            if (checkDistBetweenGameObjects(this, this.__targetEnemy) <= this.__range)
+                return;
+            else
+                this.__targetEnemy = null;
+        }
+        else
+        {
+            for (let enemyIndex = 0; enemyIndex < gameObjectsCollection.enemies.length; enemyIndex++)
             {
-                // we have an enemy
-                this.__closestEnemy = occ[occupantIndex];
-                break;
+                if (nearest === null)
+                {
+                    // check if current enemy is in range
+                    if (checkDistBetweenGameObjects(this, gameObjectsCollection.enemies[enemyIndex]) <= this.__range)
+                    {
+                        nearest = gameObjectsCollection.enemies[enemyIndex];
+                        console.log("Found a target");
+                    }
+                        
+                }
+                else if (checkDistBetweenGameObjects(this, gameObjectsCollection.enemies[enemyIndex]) < checkDistBetweenGameObjects(this, nearest))
+                {
+                    nearest = gameObjectsCollection.enemies[enemyIndex];
+                    console.log("Found a target");
+                }
             }
+
+            this.__targetEnemy = nearest;
         }
     }
 
@@ -407,8 +440,8 @@ class BasicTurret extends Buildable
     {
         let occupants = []
         // determine array index of current tile
-        let myRow = this.y / 32 - 1;
-        let myCol = this.x / 32 - 1;
+        let myRow = (this.y - 32) / 64;
+        let myCol = (this.x - 32) / 64;
 
         for (let row = 0; row < myRow + this.__range + 1; row++)
         {
@@ -433,15 +466,17 @@ class BasicTurret extends Buildable
 
     rotateToEnemy()
     {
-        if (this.__closestEnemy === null)
+        if (this.__targetEnemy === null)
         {
             this.angle = 0;
             return;
         }
             
         // spiiiiiiiiiiiiiiiinnnnnnnnnnnnnnn
-        let angle = Phaser.Math.Angle.Between(this.x, this.y, this.__closestEnemy.x, this.__closestEnemy.y);
+        let angle = Phaser.Math.Angle.Between(this.x, this.y, this.__targetEnemy.x, this.__targetEnemy.y);
         this.rotation = angle;
+        // it's offset by 90 for some reason, idk why
+        this.angle += 90;
     }
 
     #resetAnim()
@@ -519,7 +554,7 @@ class BasicEnemy extends BaseObject
         // set next tile
         this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
 
-        this.speed = 10; // should be public, can be slowed down
+        this.speed = 100; // should be public, can be slowed down
         this.__reachedTrackEnd = false;
     }
 
@@ -631,9 +666,9 @@ class BasicEnemy extends BaseObject
 
 class BasicProjectile extends BaseObject
 {
-    constructor(originX, originY)
+    constructor(originX, originY, velX, velY, target)
     {
-
+        super()
     }
 }
 
