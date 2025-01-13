@@ -344,7 +344,7 @@ class SolarPanel extends Buildable
         this.setActive(true);
         this.setVisible(true);
         this.__cooldownStartTime = Date.now();
-        this.on("animationcomplete", this.#onAnimationEnd)
+        this.on("animationcomplete", this.#onAnimationEnd);
     }
 
     updateObj()
@@ -379,6 +379,8 @@ class BasicTurret extends Buildable
         this.body.onOverlap = true;
         this.__range = 96;
         this.__targetEnemy = null;
+        this.cooldown = 10;
+        this.nextBulletFireTime = 0;
     }
 
     updateObj()
@@ -390,6 +392,7 @@ class BasicTurret extends Buildable
                 console.log("Searching");
                 this.__findTarget();
                 this.rotateToEnemy();
+                this.attemptFire();
             }
         }
         else
@@ -464,19 +467,44 @@ class BasicTurret extends Buildable
         return occupants;
     }
 
+    attemptFire()
+    {
+        if (this.__targetEnemy === null)
+            return;
+
+        if (Date.now() > this.nextBulletFireTime)
+        {
+            // calculate vector from here to target
+            let dir = new Vec2(this.__targetEnemy.x - this.x, this.__targetEnemy.y - this.y);
+            dir = dir.normalised();
+            console.log("Firing bullet");
+            // fire bullet
+            let bX = Math.sin(this.rotation);
+            let bY = Math.cos(this.rotation);
+            this.nextBulletFireTime += this.cooldown * 1000;
+            gameObjectsCollection.projectiles.push(new BasicProjectile(this.scene, SPRITE_BULLET_KEY, this.x + (bX * 16), this.y + (bY * 16), dir.x * 100, dir.y * 100, this.__targetEnemy));
+            this.play(ANIMATION_TURRET_FIRE_KEY);
+        }
+    }
+
+    resetAnimation(anim, frame, gameobject, frameKey)
+    {
+        anim.setFrame(0);
+    }
+
     rotateToEnemy()
     {
         if (this.__targetEnemy === null)
         {
-            this.angle = 0;
+            this.setAngle(0);
             return;
         }
             
         // spiiiiiiiiiiiiiiiinnnnnnnnnnnnnnn
         let angle = Phaser.Math.Angle.Between(this.x, this.y, this.__targetEnemy.x, this.__targetEnemy.y);
-        this.rotation = angle;
+        this.setRotation(angle);
         // it's offset by 90 for some reason, idk why
-        this.angle += 90;
+        this.setAngle(this.angle + 90);
     }
 
     #resetAnim()
@@ -530,6 +558,7 @@ class BasicEnemy extends BaseObject
 {
     // timer to control enemy state
     #lastShotTime = -1;
+    #healthChanged = false;
 
     #enemyStates = 
     {
@@ -556,6 +585,7 @@ class BasicEnemy extends BaseObject
 
         this.speed = 100; // should be public, can be slowed down
         this.__reachedTrackEnd = false;
+        this.on(Phaser.Animations.Events.ANIMATION_COMPLETE, this.resetAnimation);
     }
 
     updateObj()
@@ -662,13 +692,63 @@ class BasicEnemy extends BaseObject
         // call GameObject.Destroy
         this.destroy();
     }
+
+    changeHealth(amt)
+    {
+        this.health += amt;
+        this.#healthChanged = true;
+        this.play(ANIMATION_BASIC_ENEMY_DAMAGE);
+    }
+
+    resetAnimation(anim, frame, gameObject, frameKey)
+    {
+        anim.setFrame(0);
+    }
 }
 
 class BasicProjectile extends BaseObject
 {
-    constructor(originX, originY, velX, velY, target)
+    constructor(scene, texture, originX, originY, velX, velY, target)
     {
-        super()
+        super(scene, texture, originX, originY);
+        this.setScale(1, 1);
+        scene.physics.add.existing(this);
+        this.setVelocityX(velX);
+        this.setVelocityY(velY);
+        this.target = target;
+        this.dmg = 10;
+    }
+
+    updateObj()
+    {
+        // check if outside game world
+        if (this.x > this.scene.game.config.width || this.x < 0 || this.y > this.scene.game.config.height || this.y < 0)
+        {
+            this.purge();
+            return;
+        }
+
+        // check for a collision
+        if (this.scene.physics.collide(this, this.target))
+        {
+            // damage target and destroy self
+            this.target.changeHealth(-this.dmg);
+            this.purge();
+        }
+    }
+
+    purge()
+    {
+        for (let i = 0; i < gameObjectsCollection.projectiles.length; i++)
+        {
+            if (gameObjectsCollection.projectiles[i] === this)
+            {
+                gameObjectsCollection.projectiles.splice(i, 1);
+                break;
+            }
+        }
+
+        this.destroy();
     }
 }
 
