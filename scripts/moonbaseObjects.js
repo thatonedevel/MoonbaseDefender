@@ -127,7 +127,7 @@ class BaseObject extends Phaser.Physics.Arcade.Sprite
 
     purge()
     {
-
+        this.destroy();
     }
 }
 
@@ -249,11 +249,8 @@ class EnergyUnit extends BaseObject
             if (Math.sqrt(movX**2 + movY**2) < 20)
             {
                 // close to bank, count it
-                this.setVisible(false);
-                this.setActive(false);
-                let ind = gameObjectsCollection.energyObjects.indexOf(this);
-                if (ind !== -1) gameObjectsCollection.energyObjects.splice(ind, 1); // https://stackoverflow.com/a/5767357
                 gameData.energyStored += 50;
+                this.purge();
             }
             else
             {
@@ -269,7 +266,7 @@ class EnergyUnit extends BaseObject
         {
             if (gameObjectsCollection.energyObjects[i] === this)
             {
-                gameObjectsCollection.energyObjects.splice(i, 1);
+                gameObjectsCollection.energyObjects.splice(i, 1); // https://stackoverflow.com/a/5767357
                 break;
             }
         }
@@ -290,8 +287,33 @@ class Buildable extends BaseObject
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos);
-        // tile row
-        gameObjectsCollection.board[yPos / 32][xPos / 32].occupant = this;
+    }
+
+    purge()
+    {
+        // determine row / col on board
+        let row = (this.x / 32) - 1;
+        let col = (this.y / 32) - 1;
+
+        if (row < gameObjectsCollection.board.length && col < gameObjectsCollection.board[0].length)
+        {
+            // found tile
+            let tile = gameObjectsCollection.board[row][col];
+            tile.removeOccupant(this);
+        }
+
+        // find self in buildables array
+
+        for (let i = 0; i < gameObjectsCollection.turrets.length; i++)
+        {
+            if (gameObjectsCollection.turrets[i] === this)
+            {
+                gameObjectsCollectionb.turrets.splice(i, 1);
+                break;
+            }
+        }        
+
+        this.destroy();
     }
 }
 
@@ -342,6 +364,118 @@ class BasicTurret extends Buildable
     {
         super(scene, texture, xPos, yPos);
         scene.physics.add.existing(this);
+        this.__range = 1;
+        this.__closestEnemy = null;
+    }
+
+    updateObj()
+    {
+        if (this.health > 0)
+        {
+            if (gameObjectsCollection.enemies.length > 0)
+            {
+                console.log("Searching");
+                this.__findTarget();
+                this.rotateToEnemy();
+            }
+        }
+        else
+        {
+            // death
+            this.purge();
+        }
+    }
+
+    __findTarget()
+    {
+        // stops if current target enemy is still in range
+
+        let occ = this.__getTileOccupants();
+        if (this.__closestEnemy !== null)
+            if (occ.includes(this.__closestEnemy))
+                return;
+
+        for (let occupantIndex = 0; occupantIndex < occ.length; occupantIndex++)
+        {
+            if (occ[occupantIndex] !== null)
+            {
+                // we have an enemy
+                this.__closestEnemy = occ[occupantIndex];
+                break;
+            }
+        }
+    }
+
+    __getTileOccupants()
+    {
+        let occupants = []
+        // determine array index of current tile
+        let myRow = this.y / 32 - 1;
+        let myCol = this.x / 32 - 1;
+
+        for (let row = 0; row < myRow + this.__range + 1; row++)
+        {
+            for (let col = 0; col < myCol + this.__range + 1; col++)
+            {
+                if (row === myRow && col === myCol)
+                    continue;
+
+                // if we are outside arr bounds, continue
+                if (row >= gameObjectsCollection.board.length || col >= gameObjectsCollection.board[0].length)
+                    continue;
+
+                if (gameObjectsCollection.board[row][col].forPlayer)
+                    continue;
+
+                occupants.push(...gameObjectsCollection.board[row][col].getOccupantsList());
+            }
+        }
+
+        return occupants;
+    }
+
+    rotateToEnemy()
+    {
+        if (this.__closestEnemy === null)
+        {
+            console.log("no target");
+            return;
+        }
+
+        // rotate towards nearest enemy
+        let xDist = this.__closestEnemy.x - this.x; 
+        let yDist = this.__closestEnemy.y - this.y;
+
+        let opposite = 1;
+        let adjacent = 1;
+
+        if (this.__closestEnemy.y > this.y) // enemy is below turret
+        {
+            opposite = xDist;
+            adjacent = yDist;
+        }
+        else
+        {
+            opposite = yDist;
+            adjacent = xDist;
+        }
+
+        let angle = Math.atan(opposite/adjacent);
+
+        console.log("Rotating");
+        this.rotation = angle;
+
+        // SOH CAH TOA
+    }
+
+    #resetAnim()
+    {
+
+    }
+
+    clearTarget()
+    {
+        this.__closestEnemy = null;
     }
 }
 
@@ -438,6 +572,7 @@ class BasicEnemy extends BaseObject
                     this.x = this.__nextTile.x;
                     this.y = this.__nextTile.y;
                     this.__isMoving = false;
+                    console.log("Moved");
                 }
             }
             else
@@ -452,6 +587,12 @@ class BasicEnemy extends BaseObject
         }
         else
         {
+            // check enemy is alive
+            if (this.health <= 0)
+            {
+                this.purge();
+                return;
+            }
             switch(this.__currentState)
             {
                 case this.#enemyStates.MOVING:
