@@ -70,6 +70,11 @@ class Tile extends Phaser.GameObjects.Sprite
         }
     }
 
+    getOccupantsList()
+    {
+        return [...this.#occupants];
+    }
+
     emptyTile()
     {
         this.#occupants.length = 0;
