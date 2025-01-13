@@ -273,7 +273,7 @@ function _update()
     {
         if (gameData.nextEnemySpawnTime === -10)
         {
-            gameData.nextEnemySpawnTime = Date.now() / 1000; // seconds until next enemy spawn
+            gameData.nextEnemySpawnTime = (Date.now() / 1000) + 10; // seconds until next enemy spawn
         }
         else if (gameData.nextEnemySpawnTime <= Date.now() / 1000)
         {
