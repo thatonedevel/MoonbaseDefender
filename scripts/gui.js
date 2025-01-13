@@ -116,16 +116,18 @@ class MButton extends Phaser.GameObjects.Text
     #updateCol(updateType)
     {
         // updateType values:
-        // 1 - standard (background colour)
+        // 1 - standard (background colour) - e.g pointer not over
         // 2 - hover
         // 3 - click
         switch (updateType)
         {
             case 1:
                 this.setBackgroundColor(this.#standardCol);
+                gameData.mouseOverUI = false;
                 break;
             case 2:
                 this.setBackgroundColor(this.#hoverCol);
+                gameData.mouseOverUI = true;
                 break;
             case 3:
                 this.setBackgroundColor(this.#clickCol);
