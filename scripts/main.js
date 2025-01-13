@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+// testing flag
+let hasEnemySpawned = false;
+
 // sprites
 const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
 const SPRITE_BASIC_TURRET_KEY = "basicTurret";
@@ -121,12 +124,13 @@ const gameData =
     score: 0,
     highscore: 0,
     energyStored: 25,
-    deltaTime: 0,
     bannerEnableTime: 0,
     BANNER_DURATION: 3000,
     level: 1,
     nextEnemySpawnTime: -10,
-    spawnLocations: []
+    spawnLocations: [],
+    deltaTime: 0,
+    mouseOverUI: false
 };
 
 function main()
@@ -160,6 +164,8 @@ function main()
 // game functions
 function _create()
 {
+    // cap update rate at 60
+    this.physics.world.setFPS(60);
     // create base game objects
     loadLevel(gameData.level - 1, this);
     // add input maps to game input object
@@ -243,9 +249,9 @@ function _preload()
     this.load.image(SPRITE_ENERGY_KEY, "../assets/sprites/energy.png");
 }
 
-function _update()
+function _update(time, delta)
 {
-    let deltaStart = Date.now();
+    gameData.deltaTime = delta;
     // main game loop goes here
     // call update on all game objects
     for (let i = 0; i < gameObjectsCollection.turrets.length; i++)
@@ -275,7 +281,7 @@ function _update()
         {
             gameData.nextEnemySpawnTime = (Date.now() / 1000) + 10; // seconds until next enemy spawn
         }
-        else if (gameData.nextEnemySpawnTime <= Date.now() / 1000)
+        else if (gameData.nextEnemySpawnTime <= Date.now() / 1000 && !hasEnemySpawned)
         {
             // enemy needs to be spawned
             let loc = gameData.spawnLocations[Math.floor(Math.random() * gameData.spawnLocations.length)];
@@ -286,6 +292,7 @@ function _update()
 
             // set next spawn time
             gameData.nextEnemySpawnTime = ENEMIES_MAP.getNextSpawnTime(gameData.level - 1);
+            hasEnemySpawned = true;
         }
 
         buildableGhost.updateObj();
@@ -293,8 +300,6 @@ function _update()
     }
 
     gameObjectsCollection.energyReadout.setText("Energy: " + gameData.energyStored.toString());
-    // delta time calculation, ran at the end of every frame
-    gameData.deltaTime = (Date.now() - deltaStart) / 1000;
 }
 
 function fileAddedToLoadQueueListener(key, type, loader, file)
