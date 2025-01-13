@@ -133,7 +133,6 @@ class BaseObject extends Phaser.Physics.Arcade.Sprite
 
 class BuildableGhost extends BaseObject
 {
-    #mouseDownOnPreviousFrame = false;
     #buildableName = "";
     constructor(scene, texture, xPos, yPos)
     {
@@ -169,15 +168,10 @@ class BuildableGhost extends BaseObject
             this.y = Phaser.Math.Clamp((MoonbaseInput.mouse.worldY - offsetY) + 32, 32, 64*9);
 
             // check for input
-            if (this.#mouseDownOnPreviousFrame)
+            if (MoonbaseInput.mouse.leftButtonDown() && !gameData.mouseOverUI)
             {
                 // create the buildable
-                this.#mouseDownOnPreviousFrame = false;
                 this.createBuildable();
-            }
-            if (MoonbaseInput.mouse.leftButtonDown())
-            {
-                this.#mouseDownOnPreviousFrame = true;
             }
         }
     }
@@ -188,16 +182,19 @@ class BuildableGhost extends BaseObject
         if (this.active && this.visible)
         {
             console.log("Buildable requested");
-            let row = Math.floor((this.y / 32) - 1);
-            let col = Math.floor((this.x / 32) - 1);
+            // determine row / col
+            console.log("Mouse x:", MoonbaseInput.mouse.worldX, "Mouse y:", MoonbaseInput.mouse.worldY);
+
+            let row = (this.y - 32) / 64;
+            let col = (this.x - 32) / 64;
 
             console.log("Buildable row:", row, "Buildable column:", col);
-            console.log("Rows available:", gameObjectsCollection.board.length);
-            console.log("Columns available:", gameObjectsCollection.board[0].length);
+            //console.log("Rows available:", gameObjectsCollection.board.length);
+            //console.log("Columns available:", gameObjectsCollection.board[0].length);
 
             if (gameObjectsCollection.board.length > row)
             {
-                if (gameObjectsCollection.board[row].length > col)
+                if (gameObjectsCollection.board[0].length > col)
                 {
                     if (gameObjectsCollection.board[row][col].isEmpty)
                     {
@@ -246,7 +243,7 @@ class EnergyUnit extends BaseObject
             let movX =  distX/Math.sqrt(distX**2 + distY**2) * this.#speed * gameData.deltaTime;
             let movY = distY/Math.sqrt(distX**2 + distY**2) * this.#speed * gameData.deltaTime;
             
-            if (Math.sqrt(movX**2 + movY**2) < 20)
+            if (checkDistBetweenGameObjects(this, gameObjectsCollection.energyReadout) <= 64)
             {
                 // close to bank, count it
                 gameData.energyStored += 50;
@@ -438,34 +435,13 @@ class BasicTurret extends Buildable
     {
         if (this.__closestEnemy === null)
         {
-            console.log("no target");
+            this.angle = 0;
             return;
         }
-
-        // rotate towards nearest enemy
-        let xDist = this.__closestEnemy.x - this.x; 
-        let yDist = this.__closestEnemy.y - this.y;
-
-        let opposite = 1;
-        let adjacent = 1;
-
-        if (this.__closestEnemy.y > this.y) // enemy is below turret
-        {
-            opposite = xDist;
-            adjacent = yDist;
-        }
-        else
-        {
-            opposite = yDist;
-            adjacent = xDist;
-        }
-
-        let angle = Math.atan(opposite/adjacent);
-
-        console.log("Rotating");
+            
+        // spiiiiiiiiiiiiiiiinnnnnnnnnnnnnnn
+        let angle = Phaser.Math.Angle.Between(this.x, this.y, this.__closestEnemy.x, this.__closestEnemy.y);
         this.rotation = angle;
-
-        // SOH CAH TOA
     }
 
     #resetAnim()
@@ -543,7 +519,7 @@ class BasicEnemy extends BaseObject
         // set next tile
         this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
 
-        this.speed = 100; // should be public, can be slowed down
+        this.speed = 10; // should be public, can be slowed down
         this.__reachedTrackEnd = false;
     }
 
