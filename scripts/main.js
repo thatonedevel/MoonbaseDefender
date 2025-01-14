@@ -23,6 +23,7 @@ let hasEnemySpawned = false;
 const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
 const SPRITE_BASIC_TURRET_KEY = "basicTurret";
 const SPRITE_SHIELD_GENERATOR_KEY = "shieldGenerator";
+const SPRITE_HOLOFENCE_KEY = "holoFence";
 const SPRITE_ENERGY_KEY = "energy";
 const SPRITE_BULLET_KEY = "bullet";
 const SPRITE_AREA_KEY = "area";
@@ -123,6 +124,7 @@ const gameObjectsCollection =
     projectiles: [],
     buildableButtons: [],
     effectAreas: [],
+    shields: [],
     energyReadout: null,
     alertBanner: null
 };
@@ -276,6 +278,8 @@ function _preload()
     //this.load.image("solarPanel", "../assets/sprites/buildables/solarpanel.png");
     this.load.spritesheet(SPRITE_SOLAR_PANEL_KEY, "../assets/sprites/buildables/solarpanel.png", {frameWidth:128, frameHeight:128, startFrame:0, endFrame:2});
     this.load.spritesheet(SPRITE_BASIC_TURRET_KEY, "../assets/sprites/buildables/turret_sheet.png", {frameWidth:68, frameHeight:128, startFrame:0, endFrame:8});
+    this.load.image(SPRITE_HOLOFENCE_KEY, "../assets/sprites/buildables/holofence.png");
+    this.load.image(SPRITE_SHIELD_GENERATOR_KEY, "../assets/sprites/buildables/shieldGenerator.png");
     
     // enemies
     this.load.spritesheet(ENEMIES_BASIC_ENEMY, "../assets/sprites/enemies/basicufo.png", {frameWidth:128, frameHeight:128, startFrame:0, endFrame:2});
