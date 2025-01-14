@@ -16,8 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
-const { RIGHT } = require("phaser");
-
 function clamp(min, max, num)
 {
     res = num;
@@ -574,11 +572,6 @@ class BasicTurret extends Buildable
         this.setAngle(this.angle + 90);
     }
 
-    #resetAnim()
-    {
-
-    }
-
     clearTarget()
     {
         this.__closestEnemy = null;
@@ -596,7 +589,9 @@ class ShieldGenerator extends Buildable
         this.scene.physics.add.existing(this);
         this.health = 200;
         this.shield = new Phaser.Physics.Arcade.Sprite(this.scene, xPos, yPos, SPRITE_AREA_KEY);
+        this.shield.setAlpha(0.5);
         this.scene.physics.add.existing(this.shield);
+        this.scene.add.existing(this.shield);
         gameObjectsCollection.shields.push(this.shield);
     }
 
@@ -705,7 +700,11 @@ class HoloFence extends Buildable
     constructor(scene, texture, xPos, yPos, direction)
     {
         super(scene, texture, xPos, yPos);
+        this.scene.physics.add.existing(this);
+        this.body.onOverlap = true;
         this.setOrigin(0.25, 0.5);
+        this.body.setSize(128, 64); // https://phaser.discourse.group/t/solved-overlap-between-2-sprites-not-detecting/3153/5
+        //this.body.setOffset()
         this.x = xPos;
         this.y = yPos;
         this.damage = 20;
@@ -742,8 +741,10 @@ class HoloFence extends Buildable
             // check for overlap
             if (this.scene.physics.overlap(this, gameObjectsCollection.enemies[enemyIndex]))
             {
+                console.log("Overlap");
                 if (gameObjectsCollection.enemies[enemyIndex].getLastFencePassed() !== this)
                 {
+                    console.log("DAMAGE");
                     gameObjectsCollection.enemies[enemyIndex].changeHealth(-this.damage);
                     gameObjectsCollection.enemies[enemyIndex].setLastFencePassed(this);
                 }
