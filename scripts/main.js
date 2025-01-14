@@ -32,6 +32,10 @@ const ANIMATION_ENERGY_PRODUCE_KEY = "energyProduce";
 const ANIMATION_TURRET_FIRE_KEY = "turretFire";
 const ANIMATION_BASIC_ENEMY_DAMAGE = "basicEnemyDamage";
 
+// custom events
+const EVENTS_ENEMY_DEATH = "enemyDeath";
+const EVENTS_BUILDABLE_DEATH = "buildableDeath";
+
 // enemy keys
 const ENEMIES_BASIC_ENEMY = "basicEnemy";
 
@@ -138,6 +142,23 @@ const gameData =
     mouseOverUI: false
 };
 
+// score update event listeners
+function raiseScore(duration, enemyTier)
+{
+    // duration will be ms, divide this by 1000, floor it, and add a base value of 100
+    // multiplier of 1.x is applied, where x is enemy tier
+    let base = 100;
+    let sc = base + (duration / 1000);
+    let multiplier = 1.0 + (enemyTier / 10);
+    sc *= multiplier;
+    gameData.score += Math.round(sc); // round score to closest int since floats and ints are under one type
+}
+
+function lowerScore(penalty)
+{
+    gameData.score -= Math.round(penalty * (1.0 + Math.random()));
+}
+
 function main()
 {
     BuildablesFactory.initBuildableFactory();
@@ -189,6 +210,10 @@ function _create()
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 540, [createBasicTurret]));
     gameObjectsCollection.energyReadout = this.add.text(925, 15, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
     gameObjectsCollection.alertBanner = this.add.text(0, 525, "Insufficient Energy", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:450, y:5}, align:"center"}).setAlpha(0.75);
+
+    // set up score events
+    this.events.on(EVENTS_BUILDABLE_DEATH, lowerScore);
+    this.events.on(EVENTS_ENEMY_DEATH, raiseScore);
 }
 
 function enableBanner()
@@ -307,6 +332,12 @@ function _update(time, delta)
 
         buildableGhost.updateObj();
         updateBanner();
+    }
+
+    // update high score
+    if (gameData.score > gameData.highscore)
+    {
+        gameData.highscore = gameData.score;
     }
 
     gameObjectsCollection.energyReadout.setText("Energy: " + gameData.energyStored.toString());
