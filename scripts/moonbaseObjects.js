@@ -174,7 +174,10 @@ class BuildableGhost extends BaseObject
         this.setScale(0.5, 0.5);
         this.setActive(false);
         this.setVisible(false);
+        this.orientation = 0;
         //this.on(Phaser.Input.Events.POINTER_DOWN, this.createBuildable);
+        // set up keyboard listening
+        this.scene.input.keyboard.on("keyDown", this.rotateGhost); // https://phaser.io/examples/v3.85.0/input/keyboard/view/global-keydown-event)
     }
 
     enable(name)
@@ -183,6 +186,17 @@ class BuildableGhost extends BaseObject
         this.setVisible(true);
         this.setTexture(name);
         console.log("Ghost enabled with name", name);
+        if (name === SPRITE_HOLOFENCE_KEY)
+        {
+            // larger than tile
+            this.setOrigin(0.25, 0.5);
+        }
+        else
+        {
+            this.setOrigin(0.5, 0.5);
+        }
+        this.x = 32;
+        this.y = 32;
         this.#buildableName = name;
     }
 
@@ -198,6 +212,13 @@ class BuildableGhost extends BaseObject
             let offsetY = MoonbaseInput.mouse.worldY % 64;
             this.x = Phaser.Math.Clamp((MoonbaseInput.mouse.worldX - offsetX) + 32, 32, 64*16);
             this.y = Phaser.Math.Clamp((MoonbaseInput.mouse.worldY - offsetY) + 32, 32, 64*9);
+            
+            // if current buildable is orientable (like the holofence), update rotation
+            // else rotation = 0
+            if (BuildablesFactory.getOrientable(this.texture.key))
+            {
+                this.angle = this.orientation * 90;
+            }
 
             // check for input
             if (MoonbaseInput.mouse.leftButtonDown() && !gameData.mouseOverUI)
@@ -205,6 +226,17 @@ class BuildableGhost extends BaseObject
                 // create the buildable
                 this.createBuildable();
             }
+        }
+    }
+
+    rotateGhost(event)
+    {
+        if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.R && this.active && this.visible && BuildablesFactory.getOrientable(this.#buildableName))
+        {
+            // rotate the ghost
+            this.orientation++;
+            if (this.orientation === 4)
+                this.orientation = 0;
         }
     }
 
@@ -221,6 +253,7 @@ class BuildableGhost extends BaseObject
             let col = (this.x - 32) / 64;
 
             console.log("Buildable row:", row, "Buildable column:", col);
+
             //console.log("Rows available:", gameObjectsCollection.board.length);
             //console.log("Columns available:", gameObjectsCollection.board[0].length);
 
@@ -230,8 +263,12 @@ class BuildableGhost extends BaseObject
                 {
                     if (gameObjectsCollection.board[row][col].isEmpty)
                     {
+                        let newStructure = null;
                         console.log("Placing builable");
-                        let newStructure = BuildablesFactory.createNewBuildable(this.scene, this.#buildableName, this.x, this.y);
+                        if (BuildablesFactory.getOrientable(this.#buildableName))
+                            newStructure = BuildablesFactory.createNewBuildable(this.scene, this.#buildableName, this.x, this.y, this.orientation);
+                        else
+                            newStructure = BuildablesFactory.createNewBuildable(this.scene, this.#buildableName, this.x, this.y);
                         gameObjectsCollection.turrets.push(newStructure);
                         // set the occupant of the tile to the new turret
                         gameObjectsCollection.board[row][col].addOccupant(newStructure);
@@ -663,6 +700,7 @@ class HoloFence extends Buildable
     // damages enemies as they pass through it
     static cost = 50;
     static penalty = 20;
+    static orientable = true;
 
     constructor(scene, texture, xPos, yPos, direction)
     {
@@ -952,25 +990,42 @@ class BuildablesFactory
     {
         solarPanel: function(scene, name, xPos, yPos) { return new SolarPanel(scene, name, xPos, yPos); },
         basicTurret: function(scene, name, xPos, yPos) { return new BasicTurret(scene, name, xPos, yPos); },
-        shieldGenerator: function(scene, name, xPos, yPos) { return new ShieldGenerator(scene, name, xPos, yPos); }
+        shieldGenerator: function(scene, name, xPos, yPos) { return new ShieldGenerator(scene, name, xPos, yPos); },
+        holoFence: function(scene, name, xPos, yPos, orientation) { return new HoloFence(scene, name, xPos, yPos, orientation); }
     };
 
     static COST_MAP = {};
+    static ROTATION_MAP = {};
 
     static initBuildableFactory()
     {
-        this.COST_MAP[SPRITE_BASIC_TURRET_KEY] = BasicTurret.cost;
-        this.COST_MAP[SPRITE_SOLAR_PANEL_KEY] = SolarPanel.cost;
-        this.COST_MAP[SPRITE_SHIELD_GENERATOR_KEY] = ShieldGenerator.cost;
-        this.COST_MAP[SPRITE_HOLOFENCE_KEY] = HoloFence.cost;
+        BuildablesFactory.COST_MAP[SPRITE_BASIC_TURRET_KEY] = BasicTurret.cost;
+        BuildablesFactory.COST_MAP[SPRITE_SOLAR_PANEL_KEY] = SolarPanel.cost;
+        BuildablesFactory.COST_MAP[SPRITE_SHIELD_GENERATOR_KEY] = ShieldGenerator.cost;
+        BuildablesFactory.COST_MAP[SPRITE_HOLOFENCE_KEY] = HoloFence.cost;
+        
+        // rotation
+        BuildablesFactory.ROTATION_MAP[SPRITE_HOLOFENCE_KEY] = HoloFence.orientable;
+        BuildablesFactory.ROTATION_MAP[SPRITE_BASIC_TURRET_KEY] = BasicTurret.orientable;
+        BuildablesFactory.ROTATION_MAP[SPRITE_SOLAR_PANEL_KEY] = SolarPanel.orientable;
+        BuildablesFactory.ROTATION_MAP[SPRITE_SHIELD_GENERATOR_KEY] = ShieldGenerator.orientable;
     }
 
-    static createNewBuildable(scene, name, xPos, yPos)
+    static createNewBuildable(scene, name, xPos, yPos, orientation = -1)
     {
         // create a buildable object specified by name
+        let obj = null;
         console.log("Name:", name);
-        let obj = this.#__BuildablesObj[name](scene, name, xPos, yPos);
+        if (orientation === -1)
+            obj = BuildablesFactory.#__BuildablesObj[name](scene, name, xPos, yPos);
+        else
+            obj = BuildablesFactory.#__BuildablesObj[name](scene, name, xPos, yPos, orientation);
         return obj;
+    }
+
+    static getOrientable(key)
+    {
+        return this.ROTATION_MAP[key];
     }
 
     static getBuildableCost(name)
