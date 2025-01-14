@@ -21,7 +21,7 @@ function createBasicTurret()
     console.log("request for basic turret");
     if (gameData.energyStored >= BasicTurret.cost)
     {
-        buildableGhost.enable("basicTurret");
+        buildableGhost.enable(SPRITE_BASIC_TURRET_KEY);
     }
     else
     {
@@ -34,7 +34,7 @@ function createSolarPanel()
 {
     console.log("request for solar panel");
     if (gameData.energyStored >= SolarPanel.cost)
-        buildableGhost.enable("solarPanel");
+        buildableGhost.enable(SPRITE_SOLAR_PANEL_KEY);
     else
         console.log("insufficient energy");
 }
@@ -43,9 +43,16 @@ function createShieldGenerator()
 {
     console.log("request for shield generator");
     if (gameData.energyStored >= ShieldGenerator.cost)
-        buildableGhost.enable("shieldGenerator");
+        buildableGhost.enable(SPRITE_SHIELD_GENERATOR_KEY);
     else
         console.log("insufficient energy");
+}
+
+function createHoloFence()
+{
+    console.log("request for holo fence");
+    if (gameData.energyStored >= HoloFence.cost)
+        buildableGhost.enable(SPRITE_HOLOFENCE_KEY);
 }
 
 function togglePause()
