@@ -343,18 +343,18 @@ class SolarPanel extends Buildable
         this.cooldown = 10;
         this.setActive(true);
         this.setVisible(true);
-        this.__cooldownStartTime = Date.now();
+        this.__cooldownStartTime = gameData.applicationTime;
         this.on("animationcomplete", this.#onAnimationEnd);
     }
 
     updateObj()
     {
         //console.log("Being updated");
-        if ((Date.now() - this.__cooldownStartTime) / 1000 >= this.cooldown && this.#animCooldownStarted)
+        if ((gameData.applicationTime - this.__cooldownStartTime) / 1000 >= this.cooldown && this.#animCooldownStarted)
         {
             console.log("Producing energy");
             this.play(ANIMATION_ENERGY_PRODUCE_KEY);
-            this.__cooldownStartTime = Date.now();
+            this.__cooldownStartTime = gameData.applicationTime;
             this.#animCooldownStarted = false;
         }
     }
@@ -472,7 +472,7 @@ class BasicTurret extends Buildable
         if (this.__targetEnemy === null)
             return;
 
-        if (Date.now() > this.nextBulletFireTime)
+        if (gameData.applicationTime >= this.nextBulletFireTime)
         {
             // calculate vector from here to target
             let dir = new Vec2(this.__targetEnemy.x - this.x, this.__targetEnemy.y - this.y);

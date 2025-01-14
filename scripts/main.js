@@ -63,7 +63,7 @@ const ENEMIES_MAP =
 
     getNextSpawnTime(level)
     {
-        return this.levels[level].SPAWN_COOLDOWN + (Date.now()) / 1000;
+        return this.levels[level].SPAWN_COOLDOWN + (gameData.applicationTime) / 1000;
     }
 };
 
@@ -132,6 +132,7 @@ const gameData =
     nextEnemySpawnTime: -10,
     spawnLocations: [],
     deltaTime: 0,
+    applicationTime: 0,
     mouseOverUI: false
 };
 
@@ -257,6 +258,7 @@ function _preload()
 function _update(time, delta)
 {
     gameData.deltaTime = delta;
+    gameData.applicationTime = time;
     // main game loop goes here
     // call update on all game objects
     for (let i = 0; i < gameObjectsCollection.turrets.length; i++)
@@ -284,9 +286,9 @@ function _update(time, delta)
     {
         if (gameData.nextEnemySpawnTime === -10)
         {
-            gameData.nextEnemySpawnTime = (Date.now() / 1000) + 10; // seconds until next enemy spawn
+            gameData.nextEnemySpawnTime = (gameData.applicationTime / 1000) + 10; // seconds until next enemy spawn
         }
-        else if (gameData.nextEnemySpawnTime <= Date.now() / 1000 && !hasEnemySpawned)
+        else if (gameData.nextEnemySpawnTime <= gameData.applicationTime / 1000 && !hasEnemySpawned)
         {
             // enemy needs to be spawned
             let loc = gameData.spawnLocations[Math.floor(Math.random() * gameData.spawnLocations.length)];
