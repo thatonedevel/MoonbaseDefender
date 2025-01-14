@@ -141,7 +141,8 @@ const gameData =
     spawnLocations: [],
     deltaTime: 0,
     applicationTime: 0,
-    mouseOverUI: false
+    mouseOverUI: false,
+    gameOver: false
 };
 
 // score update event listeners
@@ -211,10 +212,14 @@ function _create()
     this.anims.create({key:ANIMATION_BASIC_ENEMY_DAMAGE, frames:ENEMIES_BASIC_ENEMY, frameRate:6});
     this.anims.create({key:ANIMATION_TURRET_FIRE_KEY, frames:SPRITE_BASIC_TURRET_KEY, frameRate:24});
 
+    // buildables gui
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 540, [createSolarPanel]));
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 540, [createBasicTurret]));
+    gameObjectsCollection.buildableButtons.push(new MButton(this, "Shield Generator (/50)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 340, 540, [createShieldGenerator]));
+    gameObjectsCollection.buildableButtons.push(new MButton(this, "HoloFence (/50)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 515, 540, [createHoloFence]));
+
     gameObjectsCollection.energyReadout = this.add.text(925, 15, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
-    gameObjectsCollection.alertBanner = this.add.text(0, 525, "Insufficient Energy", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:450, y:5}, align:"center"}).setAlpha(0.75);
+    gameObjectsCollection.alertBanner = this.add.text(0, 525, "Insufficient Energy", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:450, y:5}, align:"center"}).setAlpha(0.75).setActive(false).setVisible(false);
 
     // set up score events
     this.events.on(EVENTS_BUILDABLE_DEATH, lowerScore);
