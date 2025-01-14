@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
+const { RIGHT } = require("phaser");
+
 function clamp(min, max, num)
 {
     res = num;
@@ -549,6 +551,42 @@ class BasicTurret extends Buildable
 class ShieldGenerator extends Buildable
 {
     static cost = 50;
+    static penalty = 15;
+
+    constructor(scene, texture, xPos, yPos)
+    {
+        super(scene, texture, xPos, yPos);
+        this.scene.physics.add.existing(this);
+        this.health = 200;
+        this.shield = new Phaser.Physics.Arcade.Sprite(this.scene, xPos, yPos, SPRITE_AREA_KEY);
+        this.scene.physics.add.existing(this.shield);
+        gameObjectsCollection.shields.push(this.shield);
+    }
+
+    updateObj()
+    {
+        if (this.health <= 0)
+        {
+            // find shield in shields array
+            for (let i = 0; i < gameObjectsCollection.shields.length; i++)
+            {
+                if (gameObjectsCollection.shields[i] === this.shield)
+                {
+                    gameObjectsCollection.shields.splice(i, 1);
+                    break;
+                }
+            }
+
+            this.shield.destroy();
+            this.shield = null; // set reference to null so it can be released from memory
+            
+            // raise score penalty event
+            this.scene.events.emit(EVENTS_BUILDABLE_DEATH, ShieldGenerator.penalty);
+
+            this.purge();
+            return;
+        }
+    }
 }
 
 class EffectArea extends BaseObject
@@ -924,6 +962,7 @@ class BuildablesFactory
         this.COST_MAP[SPRITE_BASIC_TURRET_KEY] = BasicTurret.cost;
         this.COST_MAP[SPRITE_SOLAR_PANEL_KEY] = SolarPanel.cost;
         this.COST_MAP[SPRITE_SHIELD_GENERATOR_KEY] = ShieldGenerator.cost;
+        this.COST_MAP[SPRITE_HOLOFENCE_KEY] = HoloFence.cost;
     }
 
     static createNewBuildable(scene, name, xPos, yPos)
