@@ -321,8 +321,8 @@ class Buildable extends BaseObject
     purge()
     {
         // determine row / col on board
-        let row = (this.x / 32) - 1;
-        let col = (this.y / 32) - 1;
+        let row = (this.y - 32) / 64;
+        let col = (this.x - 32) / 64;
 
         if (row < gameObjectsCollection.board.length && col < gameObjectsCollection.board[0].length)
         {
@@ -369,6 +369,13 @@ class SolarPanel extends Buildable
     updateObj()
     {
         //console.log("Being updated");
+        if (this.health <= 0)
+        {
+            // explosion.png
+            this.scene.events.emit(EVENTS_BUILDABLE_DEATH, SolarPanel.penalty);
+            this.purge();
+        }
+
         if ((gameData.applicationTime - this.__cooldownStartTime) / 1000 >= this.cooldown && this.#animCooldownStarted)
         {
             console.log("Producing energy");
@@ -418,6 +425,7 @@ class BasicTurret extends Buildable
         else
         {
             // death
+            this.scene.events.emit(EVENTS_BUILDABLE_DEATH, BasicTurret.penalty);
             this.purge();
         }
     }
@@ -622,6 +630,8 @@ class HoloFence extends Buildable
     {
         super(scene, texture, xPos, yPos);
         this.setOrigin(0.25, 0.5);
+        this.x = xPos;
+        this.y = yPos;
         this.damage = 20;
 
         switch (direction)
@@ -643,6 +653,14 @@ class HoloFence extends Buildable
 
     updateObj()
     {
+        // check alive
+        if (this.health <= 0)
+        {
+            // THE HOLOFENCE IS DEAD
+            this.scene.events.emit(EVENTS_BUILDABLE_DEATH, HoloFence.penalty);
+            this.purge();
+        }
+
         for (let enemyIndex = 0; enemyIndex < gameObjectsCollection.enemies.length; enemyIndex++)
         {
             // check for overlap
@@ -690,6 +708,8 @@ class BasicEnemy extends BaseObject
 
         this.speed = 100; // should be public, can be slowed down
         this.__reachedTrackEnd = false;
+        this.__birthday = gameData.applicationTime;
+        this.__tier = 1;
         this.on("animationcomplete", this.resetAnimation);
     }
 
@@ -736,6 +756,9 @@ class BasicEnemy extends BaseObject
             // check enemy is alive
             if (this.health <= 0)
             {
+                // determine time of death
+                let duration = gameData.applicationTime - this.__birthday;
+                this.scene.events.emit(EVENTS_ENEMY_DEATH, duration, this.__tier);
                 this.purge();
                 return;
             }
