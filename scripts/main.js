@@ -191,7 +191,7 @@ function _create()
 
 function enableBanner()
 {
-    gameData.bannerEnableTime = Date.now();
+    gameData.bannerEnableTime = gameData.applicationTime;
     gameObjectsCollection.alertBanner.setActive(true);
     gameObjectsCollection.alertBanner.setVisible(true);
     gameObjectsCollection.alertBanner.setAlpha(0.75);
@@ -201,7 +201,7 @@ function updateBanner()
 {
     if (gameObjectsCollection.alertBanner.active)
     {
-        if (Date.now() - gameData.bannerEnableTime >= gameData.BANNER_DURATION)
+        if (gameData.applicationTime - gameData.bannerEnableTime >= gameData.BANNER_DURATION)
         {
             gameObjectsCollection.alertBanner.setActive(false);
             gameObjectsCollection.alertBanner.setVisible(false);
@@ -212,7 +212,7 @@ function updateBanner()
         {
             let fullTransparency = 0.75;
             // determine % of duration passed and map that onto the alpha value
-            let enabledDuration = Date.now() - gameData.bannerEnableTime;
+            let enabledDuration = gameData.applicationTime - gameData.bannerEnableTime;
 
             let newTransparency = fullTransparency - (enabledDuration / gameData.BANNER_DURATION);
             gameObjectsCollection.alertBanner.setAlpha(newTransparency);
