@@ -85,10 +85,10 @@ const GameStates =
 
 const COMPASS_HEADINGS = 
 {
-    NORTH: 0,
+    EAST: 0,
     SOUTH: 1,
-    EAST: 2,
-    WEST: 3
+    WEST: 2,
+    NORTH: 3
 };
 
 let buildableGhost;
