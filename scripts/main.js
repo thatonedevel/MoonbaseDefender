@@ -22,9 +22,10 @@ let hasEnemySpawned = false;
 // sprites
 const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
 const SPRITE_BASIC_TURRET_KEY = "basicTurret";
-const SPRIRE_SHIELD_GENERATOR_KEY = "shieldGenerator";
+const SPRITE_SHIELD_GENERATOR_KEY = "shieldGenerator";
 const SPRITE_ENERGY_KEY = "energy";
 const SPRITE_BULLET_KEY = "bullet";
+const SPRITE_AREA_KEY = "area";
 
 // animations
 const ANIMATION_ENERGY_PRODUCE_KEY = "energyProduce";
@@ -117,6 +118,7 @@ const gameObjectsCollection =
     ],
     projectiles: [],
     buildableButtons: [],
+    effectAreas: [],
     energyReadout: null,
     alertBanner: null
 };
@@ -181,7 +183,7 @@ function _create()
     // create game animations
     this.anims.create({key:ANIMATION_ENERGY_PRODUCE_KEY, frames:SPRITE_SOLAR_PANEL_KEY, frameRate:6});
     this.anims.create({key:ANIMATION_BASIC_ENEMY_DAMAGE, frames:ENEMIES_BASIC_ENEMY, frameRate:6});
-    this.anims.create({key:ANIMATION_TURRET_FIRE_KEY, frames:SPRITE_BASIC_TURRET_KEY, frameRate:6});
+    this.anims.create({key:ANIMATION_TURRET_FIRE_KEY, frames:SPRITE_BASIC_TURRET_KEY, frameRate:24});
 
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 540, [createSolarPanel]));
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Basic Turret (/75)", {fontFamily: "Arial", color:"#FFFFFF", fontSize:16}, 200, 540, [createBasicTurret]));
@@ -253,6 +255,7 @@ function _preload()
     // other
     this.load.image(SPRITE_ENERGY_KEY, "../assets/sprites/energy.png");
     this.load.image(SPRITE_BULLET_KEY, "../assets/sprites/bullet.png");
+    this.load.image(SPRITE_AREA_KEY, "../assets/sprites/area.png");
 }
 
 function _update(time, delta)
