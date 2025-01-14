@@ -27,6 +27,19 @@ function clamp(min, max, num)
     return res;
 }
 
+function wrapi(min, max, val)
+{
+    // wraps a value around to fit within the specified range
+    // 
+    let res = min + val % mmax;
+    return res;
+}
+
+function wrapf(min, max, val)
+{
+
+}
+
 class Vec2
 {
     constructor(x, y)
@@ -116,6 +129,8 @@ function compareHorizontalAndVerticalDistanceToThreshold(objA, objB, threshold)
 
 class BaseObject extends Phaser.Physics.Arcade.Sprite
 {
+    static orientable = false;
+
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, xPos, yPos, texture);
@@ -296,6 +311,8 @@ class EnergyUnit extends BaseObject
 class Buildable extends BaseObject
 {
     static cost = 0;
+    static penalty = 0; // points are lost for destroyed buildables
+
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos);
@@ -334,6 +351,8 @@ class SolarPanel extends Buildable
     #animCooldownStarted = true;
 
     static cost = 25;
+    static penalty = 40;
+
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos)
@@ -371,6 +390,7 @@ class SolarPanel extends Buildable
 class BasicTurret extends Buildable
 {
     static cost = 75;
+    static penalty = 30;
 
     constructor(scene, texture, xPos, yPos)
     {
@@ -474,6 +494,7 @@ class BasicTurret extends Buildable
 
         if (gameData.applicationTime >= this.nextBulletFireTime)
         {
+            this.play(ANIMATION_TURRET_FIRE_KEY);
             // calculate vector from here to target
             let dir = new Vec2(this.__targetEnemy.x - this.x, this.__targetEnemy.y - this.y);
             dir = dir.normalised();
@@ -483,7 +504,6 @@ class BasicTurret extends Buildable
             let bY = Math.cos(this.rotation);
             this.nextBulletFireTime += this.cooldown * 1000;
             gameObjectsCollection.projectiles.push(new BasicProjectile(this.scene, SPRITE_BULLET_KEY, this.x + (bX * 16), this.y + (bY * 16), dir.x * 100, dir.y * 100, this.__targetEnemy));
-            this.play(ANIMATION_TURRET_FIRE_KEY);
         }
     }
 
@@ -523,13 +543,86 @@ class ShieldGenerator extends Buildable
     static cost = 50;
 }
 
+class EffectArea extends BaseObject
+{
+    #callback = () => {console.log("Hit");};
+    #targetingPlayer = false;
+    #duration = -1;
+    #areaStartTime = 0;
+
+    constructor(scene, xPos, yPos, targetPlayer = false, collisionFunc, duration = -1)
+    {
+        super(scene, SPRITE_AREA_KEY, xPos, yPos);
+        scene.physics.add.existing(this);
+        this.setAlpha(0);
+        this.#callback = collisionFunc;
+        this.#targetingPlayer = targetPlayer;
+        this.#duration = duration;
+        this.#areaStartTime = gameData.applicationTime;
+    }
+
+    updateObj()
+    {
+        if (this.#duration > 0)
+        {
+            // area is non-permanent
+            if (gameData.applicationTime > this.#areaStartTime + this.#duration)
+            {
+                this.purge();
+                return;
+            }
+        }
+
+        let len = 0;
+        let arr = [];
+
+        // check between buildables or enemies
+        if (!this.#targetingPlayer)
+        {
+            len = gameObjectsCollection.enemies.length;
+            arr = gameObjectsCollection.enemies;
+        }
+        else
+        {
+            len = gameObjectsCollection.turrets.length;
+            arr = gameObjectsCollection.turrets;
+        }
+
+        for (let i = 0; i < len; i++)
+        {
+            if (this.scene.physics.overlap(this, arr[i]))
+            {
+                this.#callback();
+            }
+        }
+    }
+
+    purge()
+    {
+        for (let i = 0; i < gameObjectsCollection.effectAreas.length; i++)
+        {
+            if (gameObjectsCollection.effectAreas[i] === this)
+            {
+                gameObjectsCollection.effectAreas.splice(i, 1);
+                break;
+            }
+        }
+
+        this.destroy();
+    }
+}
+
 class HoloFence extends Buildable
 {
+    // damages enemies as they pass through it
     static cost = 50;
+    static penalty = 20;
+
     constructor(scene, texture, xPos, yPos, direction)
     {
         super(scene, texture, xPos, yPos);
         this.setOrigin(0.25, 0.5);
+        this.damage = 20;
 
         switch (direction)
         {
@@ -548,9 +641,20 @@ class HoloFence extends Buildable
         }
     }
 
-    checkCollisions(enemy)
+    updateObj()
     {
-        // checks for enemies passing through the fence
+        for (let enemyIndex = 0; enemyIndex < gameObjectsCollection.enemies.length; enemyIndex++)
+        {
+            // check for overlap
+            if (this.scene.physics.overlap(this, gameObjectsCollection.enemies[enemyIndex]))
+            {
+                if (gameObjectsCollection.enemies[enemyIndex].getLastFencePassed() !== this)
+                {
+                    gameObjectsCollection.enemies[enemyIndex].changeHealth(-this.damage);
+                    gameObjectsCollection.enemies[enemyIndex].setLastFencePassed(this);
+                }
+            }
+        }
     }
 }
 
@@ -559,6 +663,7 @@ class BasicEnemy extends BaseObject
     // timer to control enemy state
     #lastShotTime = -1;
     #healthChanged = false;
+    #lastFencePassed = null;
 
     #enemyStates = 
     {
@@ -585,7 +690,7 @@ class BasicEnemy extends BaseObject
 
         this.speed = 100; // should be public, can be slowed down
         this.__reachedTrackEnd = false;
-        this.on(Phaser.Animations.Events.ANIMATION_COMPLETE, this.resetAnimation);
+        this.on("animationcomplete", this.resetAnimation);
     }
 
     updateObj()
@@ -700,9 +805,20 @@ class BasicEnemy extends BaseObject
         this.play(ANIMATION_BASIC_ENEMY_DAMAGE);
     }
 
+    setLastFencePassed(fence)
+    {
+        this.#lastFencePassed = fence;
+    }
+
+    getLastFencePassed()
+    {
+        return this.#lastFencePassed;
+    }
+
     resetAnimation(anim, frame, gameObject, frameKey)
     {
-        anim.setFrame(0);
+        this.setFrame(0);
+        console.log("Resetting frame");
     }
 }
 
@@ -716,11 +832,26 @@ class BasicProjectile extends BaseObject
         this.setVelocityX(velX);
         this.setVelocityY(velY);
         this.target = target;
-        this.dmg = 10;
+        this.dmg = 40;
     }
 
     updateObj()
     {
+        // check target is not null and alive
+        if (this.target !== null)
+        {
+            if (this.target.health <= 0)
+            {
+                this.purge();
+                return;
+            }
+        }
+        else
+        {
+            this.purge();
+            this.return;
+        }
+
         // check if outside game world
         if (this.x > this.scene.game.config.width || this.x < 0 || this.y > this.scene.game.config.height || this.y < 0)
         {
@@ -732,6 +863,7 @@ class BasicProjectile extends BaseObject
         if (this.scene.physics.collide(this, this.target))
         {
             // damage target and destroy self
+            console.log("Kablooey");
             this.target.changeHealth(-this.dmg);
             this.purge();
         }
@@ -744,6 +876,7 @@ class BasicProjectile extends BaseObject
             if (gameObjectsCollection.projectiles[i] === this)
             {
                 gameObjectsCollection.projectiles.splice(i, 1);
+                console.log("Removing");
                 break;
             }
         }
@@ -767,7 +900,7 @@ class BuildablesFactory
     {
         this.COST_MAP[SPRITE_BASIC_TURRET_KEY] = BasicTurret.cost;
         this.COST_MAP[SPRITE_SOLAR_PANEL_KEY] = SolarPanel.cost;
-        this.COST_MAP[SPRIRE_SHIELD_GENERATOR_KEY] = ShieldGenerator.cost;
+        this.COST_MAP[SPRITE_SHIELD_GENERATOR_KEY] = ShieldGenerator.cost;
     }
 
     static createNewBuildable(scene, name, xPos, yPos)
