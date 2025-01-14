@@ -145,10 +145,13 @@ const gameData =
 // score update event listeners
 function raiseScore(duration, enemyTier)
 {
+    let enemDuration = duration;
+    if (enemDuration === 0)
+        enemDuration = 1;
     // duration will be ms, divide this by 1000, floor it, and add a base value of 100
     // multiplier of 1.x is applied, where x is enemy tier
     let base = 100;
-    let sc = base + (duration / 1000);
+    let sc = base + (1000 / enemDuration);
     let multiplier = 1.0 + (enemyTier / 10);
     sc *= multiplier;
     gameData.score += Math.round(sc); // round score to closest int since floats and ints are under one type
