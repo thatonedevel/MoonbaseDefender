@@ -129,7 +129,10 @@ const gameObjectsCollection =
     alertBanner: null,
     scoreReadout: null,
     highScoreReadout: null,
-    healthReadout: null
+    healthReadout: null,
+    gameOverRect: null,
+    gameOverText: null,
+    gameOverButton: null
 };
 
 const gameData = 
@@ -238,6 +241,11 @@ function _create()
     gameObjectsCollection.energyReadout = this.add.text(925, 15, "Energy: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
     gameObjectsCollection.alertBanner = this.add.text(0, 525, "Insufficient Energy", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:450, y:5}, align:"center"}).setAlpha(0.75).setActive(false).setVisible(false);
 
+    // game over gui
+    gameObjectsCollection.gameOverRect = this.add.rectangle(550, this.game.config.height / 2, 400, this.game.config.height, 0x212120, 0.75).setActive(false).setVisible(false);
+    gameObjectsCollection.gameOverText = this.add.text(500, 115, "Game Over.\nYour score:\nHigh Score: ", {fontSize:24, fontFamily:"Arial", align:"center"}).setAlpha(0.75).setActive(false).setVisible(false);
+    gameObjectsCollection.gameOverButton = new MButton(this, "Play Again", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:450, y:5}, align:"center"}, 500, 250, [resetGame]).setActive(false).setVisible(false);
+
     // set up score events
     this.events.on(EVENTS_BUILDABLE_DEATH, lowerScore);
     this.events.on(EVENTS_ENEMY_DEATH, raiseScore);
@@ -318,62 +326,99 @@ function _update(time, delta)
     gameData.applicationTime = time;
     // main game loop goes here
     // call update on all game objects
-    for (let i = 0; i < gameObjectsCollection.turrets.length; i++)
+    if (!gameData.gameOver)
     {
-        gameObjectsCollection.turrets[i].updateObj();
-    }
-
-    for (let i = 0; i < gameObjectsCollection.enemies.length; i++)
-    {
-        gameObjectsCollection.enemies[i].updateObj();
-    }
-
-    for (let i = 0; i < gameObjectsCollection.projectiles.length; i++)
-    {
-        gameObjectsCollection.projectiles[i].updateObj();
-    }
-
-    for (let i = 0; i < gameObjectsCollection.energyObjects.length; i++)
-    {
-        gameObjectsCollection.energyObjects[i].updateObj();
-    }
-
-    // input
-    if (currentGameState === GameStates.PLAYING)
-    {
-        if (gameData.nextEnemySpawnTime === -10)
+        for (let i = 0; i < gameObjectsCollection.turrets.length; i++)
         {
-            gameData.nextEnemySpawnTime = (gameData.applicationTime / 1000) + 10; // seconds until next enemy spawn
-        }
-        else if (gameData.nextEnemySpawnTime <= gameData.applicationTime / 1000)
-        {
-            // enemy needs to be spawned
-            let loc = gameData.spawnLocations[Math.floor(Math.random() * gameData.spawnLocations.length)];
-            let key = ENEMIES_MAP.getEnemy(gameData.level - 1);
-            let enemy = EnemiesFactory.createEnemy(key, this, loc.spawnRow, loc.spawnCol);
-            // add enemy to the enemies array
-            gameObjectsCollection.enemies.push(enemy);
-
-            // set next spawn time
-            gameData.nextEnemySpawnTime = ENEMIES_MAP.getNextSpawnTime(gameData.level - 1);
-            //hasEnemySpawned = true;
+            gameObjectsCollection.turrets[i].updateObj();
         }
 
-        buildableGhost.updateObj();
-        updateBanner();
-    }
+        for (let i = 0; i < gameObjectsCollection.enemies.length; i++)
+        {
+            gameObjectsCollection.enemies[i].updateObj();
+        }
 
-    // update high score
-    if (gameData.score > gameData.highscore)
-    {
-        gameData.highscore = gameData.score;
-    }
+        for (let i = 0; i < gameObjectsCollection.projectiles.length; i++)
+        {
+            gameObjectsCollection.projectiles[i].updateObj();
+        }
 
-    // update gui
-    gameObjectsCollection.healthReadout.setText("Health: " + gameData.playerHealth.toString() + "/100");
-    gameObjectsCollection.scoreReadout.setText("Score: " + gameData.score.toString());
-    gameObjectsCollection.highScoreReadout.setText("High Score: " + gameData.highscore);
-    gameObjectsCollection.energyReadout.setText("Energy: " + gameData.energyStored.toString());
+        for (let i = 0; i < gameObjectsCollection.energyObjects.length; i++)
+        {
+            gameObjectsCollection.energyObjects[i].updateObj();
+        }
+
+        // input
+        if (currentGameState === GameStates.PLAYING)
+        {
+            if (gameData.nextEnemySpawnTime === -10)
+            {
+                gameData.nextEnemySpawnTime = (gameData.applicationTime / 1000) + 10; // seconds until next enemy spawn
+            }
+            else if (gameData.nextEnemySpawnTime <= gameData.applicationTime / 1000)
+            {
+                // enemy needs to be spawned
+                let loc = gameData.spawnLocations[Math.floor(Math.random() * gameData.spawnLocations.length)];
+                let key = ENEMIES_MAP.getEnemy(gameData.level - 1);
+                let enemy = EnemiesFactory.createEnemy(key, this, loc.spawnRow, loc.spawnCol);
+                // add enemy to the enemies array
+                gameObjectsCollection.enemies.push(enemy);
+
+                // set next spawn time
+                gameData.nextEnemySpawnTime = ENEMIES_MAP.getNextSpawnTime(gameData.level - 1);
+                //hasEnemySpawned = true;
+            }
+
+            buildableGhost.updateObj();
+            updateBanner();
+        }
+
+        // update high score
+        if (gameData.score > gameData.highscore)
+        {
+            gameData.highscore = gameData.score;
+        }
+
+        // update gui
+        gameObjectsCollection.healthReadout.setText("Health: " + gameData.playerHealth.toString() + "/100");
+        gameObjectsCollection.scoreReadout.setText("Score: " + gameData.score.toString());
+        gameObjectsCollection.highScoreReadout.setText("High Score: " + gameData.highscore);
+        gameObjectsCollection.energyReadout.setText("Energy: " + gameData.energyStored.toString());
+
+        // check for game over
+        if (gameData.playerHealth <= 0)
+        {
+            // clear level board
+            for (let i = 0; i < gameObjectsCollection.board.length; i++)
+            {
+                for (let j = 0; j < gameObjectsCollection.board.length; j++)
+                {
+                    // loop through tile occupants
+                    for (let occI = gameObjectsCollection.board[i][j].getOccupantsList().length - 1; occI >= 0; occI--)
+                    {
+                        gameObjectsCollection.board[i][j].getOccupantsList()[occI].destroy();
+                    }
+                    gameObjectsCollection.board[i][j].emptyTile();
+                }
+            }
+        
+            // empty all arrays
+            gameObjectsCollection.enemies.length = 0;
+            gameObjectsCollection.turrets.length = 0;
+            gameObjectsCollection.shields.length = 0;
+            // game over
+            gameData.gameOver = true;
+            gameObjectsCollection.gameOverText.setText("Game Over!\nYour Score: " + gameData.score.toString() + "\nHigh Score: " + gameData.highscore);
+            gameObjectsCollection.gameOverText.setActive(true).setVisible(true);
+            gameObjectsCollection.gameOverRect.setActive(true).setVisible(true);
+            gameObjectsCollection.gameOverButton.setActive(true).setVisible(true);
+
+            // set z depth
+            gameObjectsCollection.gameOverRect.setDepth(1);
+            gameObjectsCollection.gameOverButton.setDepth(2);
+            gameObjectsCollection.gameOverText.setDepth(2);
+        }
+    }
 }
 
 function fileAddedToLoadQueueListener(key, type, loader, file)
@@ -396,6 +441,22 @@ function swapArrElems(arr, indA, indB)
     let tmp = arr[indA];
     arr[indA] = arr[indB];
     arr[indB] = tmp; 
+}
+
+function resetGame()
+{
+    // set score to 0
+    gameData.score = 0;
+    // reset health
+    gameData.playerHealth = 100;
+
+    gameData.gameOver = false;
+
+    // disable game over ui
+    gameObjectsCollection.gameOverButton.setActive(false).setVisible(false);
+    gameObjectsCollection.gameOverText.setActive(false).setVisible(false);
+    gameObjectsCollection.gameOverRect.setActive(false).setVisible(false);
+    gameData.nextEnemySpawnTime = -10;
 }
 
 window.addEventListener("load", main);
