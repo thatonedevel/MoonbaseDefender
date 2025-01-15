@@ -388,7 +388,7 @@ class Buildable extends BaseObject
         {
             if (gameObjectsCollection.turrets[i] === this)
             {
-                gameObjectsCollection.turrets.splice(i, 1);
+                gameObjectsCollection.turrets.splice(i, 1); // this for loop section is non-original, source is: https://stackoverflow.com/a/5767357
                 break;
             }
         }        
@@ -731,7 +731,7 @@ class EffectArea extends BaseObject
         {
             if (gameObjectsCollection.effectAreas[i] === this)
             {
-                gameObjectsCollection.effectAreas.splice(i, 1);
+                gameObjectsCollection.effectAreas.splice(i, 1); // this for loop section is non-original, source is: https://stackoverflow.com/a/5767357
                 break;
             }
         }
@@ -1022,7 +1022,7 @@ class BasicEnemy extends BaseObject
             if (gameObjectsCollection.enemies[i] === this)
             {
                 gameObjectsCollection.enemies.splice(i, 1);
-                break;
+                break; // this for loop section is non-original, source is: https://stackoverflow.com/a/5767357
             }
         }
 
@@ -1145,7 +1145,7 @@ class BasicProjectile extends BaseObject
             if (gameObjectsCollection.projectiles[i] === this)
             {
                 gameObjectsCollection.projectiles.splice(i, 1);
-                console.log("Removing");
+                console.log("Removing"); // this for loop section is non-original, source is: https://stackoverflow.com/a/5767357
                 break;
             }
         }
