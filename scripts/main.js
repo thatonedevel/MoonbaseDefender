@@ -126,7 +126,10 @@ const gameObjectsCollection =
     effectAreas: [],
     shields: [],
     energyReadout: null,
-    alertBanner: null
+    alertBanner: null,
+    scoreReadout: null,
+    highScoreReadout: null,
+    healthReadout: null
 };
 
 const gameData = 
@@ -142,7 +145,8 @@ const gameData =
     deltaTime: 0,
     applicationTime: 0,
     mouseOverUI: false,
-    gameOver: false
+    gameOver: false,
+    playerHealth: 100
 };
 
 // score update event listeners
@@ -219,6 +223,11 @@ function _create()
     this.anims.create({key:ANIMATION_ENERGY_PRODUCE_KEY, frames:SPRITE_SOLAR_PANEL_KEY, frameRate:6});
     this.anims.create({key:ANIMATION_BASIC_ENEMY_DAMAGE, frames:ENEMIES_BASIC_ENEMY, frameRate:6});
     this.anims.create({key:ANIMATION_TURRET_FIRE_KEY, frames:SPRITE_BASIC_TURRET_KEY, frameRate:24});
+
+    // score /health readouts
+    gameObjectsCollection.scoreReadout = this.add.text(this.game.config.width / 2, 10, "Score: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
+    gameObjectsCollection.highScoreReadout = this.add.text((this.game.config.width / 2) - 20, 40, "High Score: 0", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
+    gameObjectsCollection.healthReadout = this.add.text(15, 500, "Health: 100/100", {fontSize:16, fontFamily:"Arial", backgroundColor:"#333333", padding:{x:5, y:5}, align:"center"});
 
     // buildables gui
     gameObjectsCollection.buildableButtons.push(new MButton(this, "Solar Panel (/25)", {fontFamily:"Arial", color:"#FFFFFF", fontSize:16}, 64, 540, [createSolarPanel]));
@@ -360,6 +369,10 @@ function _update(time, delta)
         gameData.highscore = gameData.score;
     }
 
+    // update gui
+    gameObjectsCollection.healthReadout.setText("Health: " + gameData.playerHealth.toString() + "/100");
+    gameObjectsCollection.scoreReadout.setText("Score: " + gameData.score.toString());
+    gameObjectsCollection.highScoreReadout.setText("High Score: " + gameData.highscore);
     gameObjectsCollection.energyReadout.setText("Energy: " + gameData.energyStored.toString());
 }
 
