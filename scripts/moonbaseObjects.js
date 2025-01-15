@@ -954,6 +954,8 @@ class BasicEnemy extends BaseObject
                 if (this.x >= this.scene.game.config.width + 32 || this.x <= -32 || this.y > 32 || this.y < (-1 * this.scene.game.config.height) - 32)
                 {
                     console.log("purging");
+                    // damage player by assigned amount
+                    gameData.playerHealth -= this.__playerDMG;
                     this.purge();
                 }
             }
