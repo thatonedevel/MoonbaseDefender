@@ -162,7 +162,15 @@ function raiseScore(duration, enemyTier)
 
 function lowerScore(penalty)
 {
-    gameData.score -= Math.round(penalty * (1.0 + Math.random()));
+    let pointsDeduction = Math.round(penalty * (1.0 + Math.random()));
+    if (gameData.score - pointsDeduction < 0)
+    {
+        gameData.score = 0;
+    }
+    else
+    {
+        gameData.score -= pointsDeduction;
+    }
 }
 
 function main()
