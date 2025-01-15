@@ -344,7 +344,7 @@ class EnergyUnit extends BaseObject
         {
             if (gameObjectsCollection.energyObjects[i] === this)
             {
-                gameObjectsCollection.energyObjects.splice(i, 1); // non-original, source: zhttps://stackoverflow.com/a/5767357
+                gameObjectsCollection.energyObjects.splice(i, 1); // this for loop section is non-original, source is: https://stackoverflow.com/a/5767357
                 break;
             }
         }
