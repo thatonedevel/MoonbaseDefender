@@ -626,10 +626,6 @@ class ShieldGenerator extends Buildable
                     break;
                 }
             }
-
-            this.shield.clearParent();
-            this.shield.destroy();
-            this.shield = null; // set reference to null so it can be released from memory
             
             // raise score penalty event
             this.scene.events.emit(EVENTS_BUILDABLE_DEATH, ShieldGenerator.penalty);
@@ -637,6 +633,14 @@ class ShieldGenerator extends Buildable
             this.purge();
             return;
         }
+    }
+
+    purge()
+    {
+        super.purge();
+        this.shield.clearParent();
+        this.shield.purge();
+        this.shield = null; // set reference to null so it can be released from memory
     }
 }
 
@@ -825,7 +829,7 @@ class BasicEnemy extends BaseObject
         this.__col = tileX;
 
         this.__shieldTarget = null;
-        this.__playerDMG = 5;
+        this.__playerDMG = 10;
         // fix the physics
         this.body.setSize(64, 64);
 
