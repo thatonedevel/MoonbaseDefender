@@ -344,7 +344,7 @@ class EnergyUnit extends BaseObject
         {
             if (gameObjectsCollection.energyObjects[i] === this)
             {
-                gameObjectsCollection.energyObjects.splice(i, 1); // https://stackoverflow.com/a/5767357
+                gameObjectsCollection.energyObjects.splice(i, 1); // non-original, source: zhttps://stackoverflow.com/a/5767357
                 break;
             }
         }
@@ -753,7 +753,7 @@ class HoloFence extends Buildable
         this.scene.physics.add.existing(this);
         this.body.onOverlap = true;
         this.setOrigin(0.25, 0.5);
-        this.body.setSize(128, 64); // non original, source: https://phaser.discourse.group/t/solved-overlap-between-2-sprites-not-detecting/3153/5
+        this.body.setSize(128, 64); // non original, source: https://phaser.discourse.group/t/solved-overlap-between-2-sprites-not-detecting/3153/6
         //this.body.setOffset()
         this.x = xPos;
         this.y = yPos;
