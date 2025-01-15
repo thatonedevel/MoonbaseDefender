@@ -212,7 +212,7 @@ function main()
 function _create()
 {
     // cap update rate at 60
-    this.physics.world.setFPS(60); // https://phaser.discourse.group/t/different-game-speed-depending-on-monitor-refresh-rate/7231/2
+    this.physics.world.setFPS(60); // non original, source: https://phaser.discourse.group/t/different-game-speed-depending-on-monitor-refresh-rate/7231/2
     // create base game objects
     loadLevel(gameData.level - 1, this);
     // add input maps to game input object

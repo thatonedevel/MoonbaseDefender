@@ -168,6 +168,7 @@ class BuildableGhost extends BaseObject
     {
         super(scene, texture, xPos, yPos);
         // set transparency to 50%
+        this.setInteractive(true);
         this.setAlpha(0.5);
         this.setScale(0.5, 0.5);
         this.setActive(false);
@@ -175,7 +176,7 @@ class BuildableGhost extends BaseObject
         this.orientation = 0;
         //this.on(Phaser.Input.Events.POINTER_DOWN, this.createBuildable);
         // set up keyboard listening
-        this.scene.input.keyboard.on("keyDown", this.rotateGhost); // https://phaser.io/examples/v3.85.0/input/keyboard/view/global-keydown-event)
+        this.scene.input.keyboard.on("keyDown", this.rotateGhost); // non-original, source: https://phaser.io/examples/v3.85.0/input/keyboard/view/global-keydown-event)
     }
 
     enable(name)
@@ -752,7 +753,7 @@ class HoloFence extends Buildable
         this.scene.physics.add.existing(this);
         this.body.onOverlap = true;
         this.setOrigin(0.25, 0.5);
-        this.body.setSize(128, 64); // https://phaser.discourse.group/t/solved-overlap-between-2-sprites-not-detecting/3153/5
+        this.body.setSize(128, 64); // non original, source: https://phaser.discourse.group/t/solved-overlap-between-2-sprites-not-detecting/3153/5
         //this.body.setOffset()
         this.x = xPos;
         this.y = yPos;
