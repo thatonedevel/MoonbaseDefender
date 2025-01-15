@@ -288,9 +288,13 @@ class EnergyUnit extends BaseObject
 {
     #movingToBank = false;
     #speed = 5;
+    #spawnTime = 0;
+    #aliveTime = 5000;
+
     constructor(scene, texture, xPos, yPos)
     {
         super(scene, texture, xPos, yPos);
+        this.#spawnTime = gameData.applicationTime;
         this.setInteractive();
         this.on("pointerdown", this.#moveToBank);
     }
@@ -320,6 +324,15 @@ class EnergyUnit extends BaseObject
             {
                 this.x += movX;
                 this.y += movY;
+            }
+        }
+        else
+        {
+            // check we have been alive for five seconds
+            if (gameData.applicationTime > this.#spawnTime + this.#aliveTime)
+            {
+                this.purge();
+                return;
             }
         }
     }
@@ -539,6 +552,12 @@ class BasicTurret extends Buildable
         if (this.__targetEnemy === null)
             return;
 
+        if (this.__targetEnemy.health <= 0)
+        {
+            this.__targetEnemy = null;
+            return;
+        }
+
         if (gameData.applicationTime >= this.nextBulletFireTime)
         {
             this.play(ANIMATION_TURRET_FIRE_KEY);
@@ -549,8 +568,8 @@ class BasicTurret extends Buildable
             // fire bullet
             let bX = Math.sin(this.rotation);
             let bY = Math.cos(this.rotation);
-            this.nextBulletFireTime += gameData.applicationTime + this.cooldown * 1000;
-            gameObjectsCollection.projectiles.push(new BasicProjectile(this.scene, SPRITE_BULLET_KEY, this.x + (bX * 16), this.y + (bY * 16), 100, this.__targetEnemy));
+            this.nextBulletFireTime = gameData.applicationTime + this.cooldown * 1000;
+            gameObjectsCollection.projectiles.push(new BasicProjectile(this.scene, SPRITE_BULLET_KEY, this.x + (bX * 16), this.y + (bY * 16), 150, this.__targetEnemy));
         }
     }
 
@@ -1072,6 +1091,7 @@ class BasicProjectile extends BaseObject
         {
             if (this.target.health <= 0)
             {
+                this.target = null;
                 this.purge();
                 return;
             }
