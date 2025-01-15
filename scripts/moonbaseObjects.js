@@ -397,7 +397,7 @@ class SolarPanel extends Buildable
         // create solar panel
         // find the tile at current position
         this.damage = 0;
-        this.cooldown = 10;
+        this.cooldown = 5;
         this.setActive(true);
         this.setVisible(true);
         this.__cooldownStartTime = gameData.applicationTime;
@@ -442,9 +442,10 @@ class BasicTurret extends Buildable
         super(scene, texture, xPos, yPos);
         scene.physics.add.existing(this);
         this.body.onOverlap = true;
-        this.__range = 96;
+        this.__range = 128;
         this.__targetEnemy = null;
-        this.cooldown = 10;
+        this.cooldown = 2;
+
         this.nextBulletFireTime = 0;
     }
 
@@ -548,8 +549,8 @@ class BasicTurret extends Buildable
             // fire bullet
             let bX = Math.sin(this.rotation);
             let bY = Math.cos(this.rotation);
-            this.nextBulletFireTime += this.cooldown * 1000;
-            gameObjectsCollection.projectiles.push(new BasicProjectile(this.scene, SPRITE_BULLET_KEY, this.x + (bX * 16), this.y + (bY * 16), dir.x * 100, dir.y * 100, this.__targetEnemy));
+            this.nextBulletFireTime += gameData.applicationTime + this.cooldown * 1000;
+            gameObjectsCollection.projectiles.push(new BasicProjectile(this.scene, SPRITE_BULLET_KEY, this.x + (bX * 16), this.y + (bY * 16), 100, this.__targetEnemy));
         }
     }
 
@@ -1013,7 +1014,7 @@ class BasicEnemy extends BaseObject
             let dirVec = new Vec2(dirX, dirY);
             dirVec = dirVec.normalised();
             this.__nextShotTime = gameData.applicationTime + this.__cooldown * 1000;
-            let bullet = new BasicProjectile(this.scene, SPRITE_BULLET_KEY, this.x, this.y, dirVec.x * 100, dirVec.y * 100, target, 10);
+            let bullet = new BasicProjectile(this.scene, SPRITE_BULLET_KEY, this.x, this.y, 100, target, 10);
             gameObjectsCollection.projectiles.push(bullet);
         }
     }
@@ -1044,15 +1045,22 @@ class BasicEnemy extends BaseObject
 
 class BasicProjectile extends BaseObject
 {
-    constructor(scene, texture, originX, originY, velX, velY, target, damage = 40)
+    constructor(scene, texture, originX, originY, speed, target, damage = 40)
     {
         super(scene, texture, originX, originY);
         this.setScale(1, 1);
         scene.physics.add.existing(this);
         this.body.onOverlap = true;
         this.body.setSize(8, 8);
-        this.setVelocityX(velX);
-        this.setVelocityY(velY);
+        this.speed = speed;
+        let dirX = target.x - this.x;
+        let dirY = target.y - this.y;
+
+        let dirVec = new Vec2(dirX, dirY);
+        dirVec = dirVec.normalised();
+
+        this.setVelocityX(dirVec.x * speed);
+        this.setVelocityY(dirVec.y * speed);
         this.target = target;
         this.dmg = damage;
     }
@@ -1080,6 +1088,17 @@ class BasicProjectile extends BaseObject
             this.purge();
             return;
         }
+
+        // update velocity. we need to home in on the target
+        let dirX = this.target.x - this.x;
+        let dirY = this.target.y - this.y;
+
+        let dirVec = new Vec2(dirX, dirY);
+        dirVec = dirVec.normalised();
+        
+        // set velocity
+        this.setVelocityX(dirVec.x * this.speed);
+        this.setVelocityY(dirVec.y * this.speed);
 
         // check for a collision
         if (this.scene.physics.overlap(this, this.target))
