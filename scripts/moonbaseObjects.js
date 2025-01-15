@@ -259,7 +259,7 @@ class BuildableGhost extends BaseObject
             {
                 if (gameObjectsCollection.board[0].length > col)
                 {
-                    if (gameObjectsCollection.board[row][col].isEmpty)
+                    if (gameObjectsCollection.board[row][col].isEmpty && gameObjectsCollection.board[row][col].isTurretSpace)
                     {
                         let newStructure = null;
                         console.log("Placing builable");
@@ -374,7 +374,7 @@ class Buildable extends BaseObject
         {
             if (gameObjectsCollection.turrets[i] === this)
             {
-                gameObjectsCollectionb.turrets.splice(i, 1);
+                gameObjectsCollection.turrets.splice(i, 1);
                 break;
             }
         }        
@@ -392,7 +392,8 @@ class SolarPanel extends Buildable
 
     constructor(scene, texture, xPos, yPos)
     {
-        super(scene, texture, xPos, yPos)
+        super(scene, texture, xPos, yPos);
+        this.scene.physics.add.existing(this);
         // create solar panel
         // find the tile at current position
         this.damage = 0;
@@ -756,9 +757,9 @@ class HoloFence extends Buildable
 class BasicEnemy extends BaseObject
 {
     // timer to control enemy state
-    #lastShotTime = -1;
     #healthChanged = false;
     #lastFencePassed = null;
+    #target = null;
 
     #enemyStates = 
     {
@@ -778,7 +779,16 @@ class BasicEnemy extends BaseObject
         this.__row = tileY;
         this.__col = tileX;
 
+        this.__shieldTarget = null;
+        this.__playerDMG = 5;
+        // fix the physics
+        this.body.setSize(64, 64);
+
         this.__isMoving = true;
+        this.__range = 64 * 4;
+
+        this.__nextShotTime = 0;
+        this.__cooldown = 5;
 
         // set next tile
         this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
@@ -790,8 +800,86 @@ class BasicEnemy extends BaseObject
         this.on("animationcomplete", this.resetAnimation);
     }
 
+    updateState()
+    {
+        this.__shieldTarget = null;
+        if (this.#lastFencePassed !== null)
+        {
+            // check if it's protected
+            if (this.__checkIfBuildableIsProtected(this.#lastFencePassed))
+            {
+                this.__launchProjectile(this.__shieldTarget);
+            }
+            else
+            {
+                this.__launchProjectile(this.#lastFencePassed);
+            }
+
+            // clear this reference to last fence
+            this.#lastFencePassed = null;
+        }
+        else
+        {
+            // search for a nearby turret
+            let turret = this.__findNearestTurret();
+            if (turret !== null)
+            {
+                if (!this.__checkIfBuildableIsProtected(turret))
+                {
+                    this.__launchProjectile(turret);
+                }
+                else
+                {
+                    this.__launchProjectile(this.__shieldTarget);
+                }
+            }
+        }
+    }
+
+    __findNearestTurret()
+    {
+        let nearest = null;
+
+        for (let i = 0; i < gameObjectsCollection.turrets.length; i++)
+        {
+            if (nearest === null)
+            {
+                if (checkDistBetweenGameObjects(this, gameObjectsCollection.turrets[i]) <= this.__range)
+                {
+                    nearest = gameObjectsCollection.turrets[i];
+                }
+            }
+            else
+            {
+                if (checkDistBetweenGameObjects(this, nearest) > checkDistBetweenGameObjects(this, gameObjectsCollection.turrets[i]))
+                {
+                    nearest = gameObjectsCollection.turrets[i];
+                }
+            }
+        }
+
+        return nearest;
+    }
+
+    __checkIfBuildableIsProtected(buildable)
+    {
+        let isProtected = false;
+        for (let i = 0; i < gameObjectsCollection.shields.length; i++)
+        {
+            if (this.scene.physics.overlap(buildable, gameObjectsCollection.shields[i]))
+            {
+                isProtected = true;
+                this.__shieldTarget = gameObjectsCollection.shields[i];
+                break;
+            }
+        }
+        return isProtected;
+    }
+
     updateObj()
     {
+        this.updateState();
+        // handle movement
         if (this.__isMoving)
         {
             if (!this.__reachedTrackEnd)
@@ -839,33 +927,28 @@ class BasicEnemy extends BaseObject
                 this.purge();
                 return;
             }
-            switch(this.__currentState)
+            // update tile status
+            this.__currentTile.removeOccupant(this);
+            // update row / col
+            this.__row += this.__currentTile.nextTileTranslation.y;
+            this.__col += this.__currentTile.nextTileTranslation.x;
+
+            this.__currentTile = this.__nextTile;
+            this.__currentTile.addOccupant(this);
+
+            // check if next tile exists
+            if (this.__row < gameObjectsCollection.board.length - 1 && this.__col < gameObjectsCollection.board[0].length - 1)
             {
-                case this.#enemyStates.MOVING:
-                    // update tile status
-                    this.__currentTile.removeOccupant(this);
-                    // update row / col
-                    this.__row += this.__currentTile.nextTileTranslation.y;
-                    this.__col += this.__currentTile.nextTileTranslation.x;
-
-                    this.__currentTile = this.__nextTile;
-                    this.__currentTile.addOccupant(this);
-
-                    // check if next tile exists
-                    if (this.__row < gameObjectsCollection.board.length - 1 && this.__col < gameObjectsCollection.board[0].length - 1)
-                    {
-                        // get next tile
-                        this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
-                        // reset movement flag
-                        this.__isMoving = true;
-                    }
-                    else
-                    {
-                        // moving outside the game world
-                        this.__reachedTrackEnd = true;
-                        this.__isMoving = true;
-                    } 
-                    break;
+                // get next tile
+                this.__nextTile = gameObjectsCollection.board[this.__row + this.__currentTile.nextTileTranslation.y][this.__col + this.__currentTile.nextTileTranslation.x];
+                // reset movement flag
+                this.__isMoving = true;
+            }
+            else
+            {
+                // moving outside the game world
+                this.__reachedTrackEnd = true;
+                this.__isMoving = true;
             }
         }
     }
@@ -898,6 +981,21 @@ class BasicEnemy extends BaseObject
         this.destroy();
     }
 
+    __launchProjectile(target)
+    {
+        if (gameData.applicationTime >= this.__nextShotTime)
+        {
+            let dirX = target.x - this.x;
+            let dirY = target.y - this.y;
+
+            let dirVec = new Vec2(dirX, dirY);
+            dirVec = dirVec.normalised();
+            this.__nextShotTime = gameData.applicationTime + this.__cooldown * 1000;
+            let bullet = new BasicProjectile(this.scene, SPRITE_BULLET_KEY, this.x, this.y, dirVec.x * 100, dirVec.y * 100, target, 10);
+            gameObjectsCollection.projectiles.push(bullet);
+        }
+    }
+
     changeHealth(amt)
     {
         this.health += amt;
@@ -924,15 +1022,17 @@ class BasicEnemy extends BaseObject
 
 class BasicProjectile extends BaseObject
 {
-    constructor(scene, texture, originX, originY, velX, velY, target)
+    constructor(scene, texture, originX, originY, velX, velY, target, damage = 40)
     {
         super(scene, texture, originX, originY);
         this.setScale(1, 1);
         scene.physics.add.existing(this);
+        this.body.onOverlap = true;
+        this.body.setSize(8, 8);
         this.setVelocityX(velX);
         this.setVelocityY(velY);
         this.target = target;
-        this.dmg = 40;
+        this.dmg = damage;
     }
 
     updateObj()
@@ -960,10 +1060,11 @@ class BasicProjectile extends BaseObject
         }
 
         // check for a collision
-        if (this.scene.physics.collide(this, this.target))
+        if (this.scene.physics.overlap(this, this.target))
         {
             // damage target and destroy self
             console.log("Kablooey");
+            console.log(this.target);
             this.target.changeHealth(-this.dmg);
             this.purge();
         }
