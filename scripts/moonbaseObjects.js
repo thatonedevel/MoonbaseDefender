@@ -589,10 +589,7 @@ class ShieldGenerator extends Buildable
         super(scene, texture, xPos, yPos);
         this.scene.physics.add.existing(this);
         this.health = 200;
-        this.shield = new Phaser.Physics.Arcade.Sprite(this.scene, xPos, yPos, SPRITE_AREA_KEY);
-        this.shield.setAlpha(0.5);
-        this.scene.physics.add.existing(this.shield);
-        this.scene.add.existing(this.shield);
+        this.shield = new Shield(this.scene, this.x, this.y, this);
         gameObjectsCollection.shields.push(this.shield);
     }
 
@@ -610,6 +607,7 @@ class ShieldGenerator extends Buildable
                 }
             }
 
+            this.shield.clearParent();
             this.shield.destroy();
             this.shield = null; // set reference to null so it can be released from memory
             
@@ -619,6 +617,32 @@ class ShieldGenerator extends Buildable
             this.purge();
             return;
         }
+    }
+}
+
+class Shield extends BaseObject
+{
+    #parent = null
+    constructor(scene, xPos, yPos, parent)
+    {
+        super(scene, SPRITE_AREA_KEY, xPos, yPos);
+        this.scene.add.existing(this);
+        // fix scale
+        this.setScale(1, 1);
+        this.setAlpha(0.5);
+        this.scene.physics.add.existing(this);
+        this.body.onOverlap = true;
+        this.#parent = parent;
+    }
+
+    getParent()
+    {
+        return this.#parent;
+    }
+
+    clearParent()
+    {
+        this.#parent = null;
     }
 }
 
@@ -735,6 +759,7 @@ class HoloFence extends Buildable
             // THE HOLOFENCE IS DEAD
             this.scene.events.emit(EVENTS_BUILDABLE_DEATH, HoloFence.penalty);
             this.purge();
+            return;
         }
 
         for (let enemyIndex = 0; enemyIndex < gameObjectsCollection.enemies.length; enemyIndex++)
@@ -808,15 +833,12 @@ class BasicEnemy extends BaseObject
             // check if it's protected
             if (this.__checkIfBuildableIsProtected(this.#lastFencePassed))
             {
-                this.__launchProjectile(this.__shieldTarget);
+                this.__launchProjectile(this.__shieldTarget.getParent());
             }
             else
             {
                 this.__launchProjectile(this.#lastFencePassed);
             }
-
-            // clear this reference to last fence
-            this.#lastFencePassed = null;
         }
         else
         {
@@ -830,7 +852,7 @@ class BasicEnemy extends BaseObject
                 }
                 else
                 {
-                    this.__launchProjectile(this.__shieldTarget);
+                    this.__launchProjectile(this.__shieldTarget.getParent());
                 }
             }
         }
