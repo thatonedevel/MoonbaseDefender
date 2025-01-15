@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 */
 
 // testing flag
-let hasEnemySpawned = false;
+//let hasEnemySpawned = false;
 
 // sprites
 const SPRITE_SOLAR_PANEL_KEY = "solarPanel";
@@ -328,7 +328,7 @@ function _update(time, delta)
         {
             gameData.nextEnemySpawnTime = (gameData.applicationTime / 1000) + 10; // seconds until next enemy spawn
         }
-        else if (gameData.nextEnemySpawnTime <= gameData.applicationTime / 1000 && !hasEnemySpawned)
+        else if (gameData.nextEnemySpawnTime <= gameData.applicationTime / 1000)
         {
             // enemy needs to be spawned
             let loc = gameData.spawnLocations[Math.floor(Math.random() * gameData.spawnLocations.length)];
@@ -339,7 +339,7 @@ function _update(time, delta)
 
             // set next spawn time
             gameData.nextEnemySpawnTime = ENEMIES_MAP.getNextSpawnTime(gameData.level - 1);
-            hasEnemySpawned = true;
+            //hasEnemySpawned = true;
         }
 
         buildableGhost.updateObj();
