@@ -222,8 +222,6 @@ function _create()
     // add input maps to game input object
     MoonbaseInput.mouse = this.input.activePointer;
     MoonbaseInput.directionKeys = this.input.keyboard.createCursorKeys();
-    // set game state to playing
-    currentGameState = GameStates.PLAYING;
     buildableGhost = new BuildableGhost(this, SPRITE_SOLAR_PANEL_KEY, 32, 32);
     // add the buttons for creating the buildables
     // create game animations
@@ -371,8 +369,10 @@ function _update(time, delta)
         // input
         if (currentGameState === GameStates.PLAYING)
         {
+            console.log("In playing branch");
             if (gameData.nextEnemySpawnTime === -10)
             {
+                console.log("setting initial spawn time for enemies");
                 gameData.nextEnemySpawnTime = (gameData.applicationTime / 1000) + 10; // seconds until next enemy spawn
             }
             else if (gameData.nextEnemySpawnTime <= gameData.applicationTime / 1000)
