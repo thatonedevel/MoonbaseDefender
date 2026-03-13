@@ -95,7 +95,7 @@ let buildableGhost;
 
 const COLUMNS = 16;
 const ROWS = 9;
-let currentGameState = GameStates.PLAYING;
+let currentGameState = GameStates.TITLE;
 
 // input object
 const MoonbaseInput = 
@@ -132,7 +132,11 @@ const gameObjectsCollection =
     healthReadout: null,
     gameOverRect: null,
     gameOverText: null,
-    gameOverButton: null
+    gameOverButton: null,
+    // title screen stuff
+    titleScreenRect: null,
+    titleScreenText: null,
+    playButton: null
 };
 
 const gameData = 
@@ -218,8 +222,6 @@ function _create()
     // add input maps to game input object
     MoonbaseInput.mouse = this.input.activePointer;
     MoonbaseInput.directionKeys = this.input.keyboard.createCursorKeys();
-    // set game state to playing
-    currentGameState = GameStates.PLAYING;
     buildableGhost = new BuildableGhost(this, SPRITE_SOLAR_PANEL_KEY, 32, 32);
     // add the buttons for creating the buildables
     // create game animations
@@ -246,6 +248,11 @@ function _create()
     gameObjectsCollection.gameOverText = this.add.text(500, 115, "Game Over.\nYour score:\nHigh Score: ", {fontSize:24, fontFamily:"Arial", align:"center"}).setAlpha(0.75).setActive(false).setVisible(false);
     gameObjectsCollection.gameOverButton = new MButton(this, "Play Again", {fontSize:16, fontFamily:"Arial", backgroundColor:"#bc1b1b", padding:{x:450, y:5}, align:"center"}, 500, 250, [resetGame]).setActive(false).setVisible(false);
 
+    // title screen gui
+    gameObjectsCollection.titleScreenRect = this.add.rectangle(0, 0, this.game.config.width * 2, this.game.config.height * 2, 0x0d0070);
+    gameObjectsCollection.titleScreenText = this.add.text((this.game.config.width / 2) - 125, (this.game.config.height / 2) - 50, "Moonbase Defender", {fontSize:32, fontFamily:"Arial", padding:{x:5, y:5}, align:"center"});
+    gameObjectsCollection.playButton = new MButton(this, "Play", {fontFamily: "Arial", color:"#000", align: "center"}, this.game.config.width / 2, (this.game.config.height / 2) + 30, [startGame], "#FFF", "#a4a4a4", "#797979");
+
     // set up score events
     this.events.on(EVENTS_BUILDABLE_DEATH, lowerScore);
     this.events.on(EVENTS_ENEMY_DEATH, raiseScore);
@@ -257,6 +264,17 @@ function enableBanner()
     gameObjectsCollection.alertBanner.setActive(true);
     gameObjectsCollection.alertBanner.setVisible(true);
     gameObjectsCollection.alertBanner.setAlpha(0.75);
+}
+
+function startGame()
+{
+    // hide title screen objects & set new game state
+    
+    gameObjectsCollection.titleScreenRect.setVisible(false).setActive(false);
+    gameObjectsCollection.titleScreenText.setVisible(false).setActive(false);
+    gameObjectsCollection.playButton.setVisible(false).setActive(false);
+
+    currentGameState = GameStates.PLAYING;
 }
 
 function updateBanner()
@@ -351,8 +369,10 @@ function _update(time, delta)
         // input
         if (currentGameState === GameStates.PLAYING)
         {
+            console.log("In playing branch");
             if (gameData.nextEnemySpawnTime === -10)
             {
+                console.log("setting initial spawn time for enemies");
                 gameData.nextEnemySpawnTime = (gameData.applicationTime / 1000) + 10; // seconds until next enemy spawn
             }
             else if (gameData.nextEnemySpawnTime <= gameData.applicationTime / 1000)
