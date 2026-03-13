@@ -168,7 +168,6 @@ class BuildableGhost extends BaseObject
     {
         super(scene, texture, xPos, yPos);
         // set transparency to 50%
-        this.setInteractive(true);
         this.setAlpha(0.5);
         this.setScale(0.5, 0.5);
         this.setActive(false);
