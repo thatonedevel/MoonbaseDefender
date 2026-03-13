@@ -250,7 +250,7 @@ function _create()
 
     // title screen gui
     gameObjectsCollection.titleScreenRect = this.add.rectangle(0, 0, this.game.config.width * 2, this.game.config.height * 2, 0x0d0070);
-    gameObjectsCollection.titleScreenText = this.add.text((this.game.config.width / 2) - 80, (this.game.config.height / 2) - 30, "Moonbase Defender", {fontSize:32, fontFamily:"Arial", padding:{x:5, y:5}, align:"center"});
+    gameObjectsCollection.titleScreenText = this.add.text((this.game.config.width / 2) - 125, (this.game.config.height / 2) - 50, "Moonbase Defender", {fontSize:32, fontFamily:"Arial", padding:{x:5, y:5}, align:"center"});
     gameObjectsCollection.playButton = new MButton(this, "Play", {fontFamily: "Arial", color:"#000", align: "center"}, this.game.config.width / 2, (this.game.config.height / 2) + 30, [startGame], "#FFF", "#a4a4a4", "#797979");
 
     // set up score events
