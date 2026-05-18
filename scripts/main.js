@@ -210,6 +210,14 @@ function main()
 
     // create phaser game
     let moonbaseDefender = new Phaser.Game(config);
+
+    // insert the page footer with a link to the source code
+    let body = document.querySelector("#body");
+    let footer =body.appendChild(document.createElement("footer"));
+
+    let link = footer.appendChild(document.createElement("a"));
+    link.text = "Source Code";
+    link.setAttribute("href", "https://github.com/thatonedevel/MoonbaseDefender");
 }
 
 // game functions
