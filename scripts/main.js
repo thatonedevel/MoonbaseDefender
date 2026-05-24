@@ -318,32 +318,32 @@ function _preload()
 
     // load game assets
     // tiles
-    this.load.image("tilePlaceableA", "../assets/sprites/tiles/tilePlaceableA.png");
-    this.load.image("tilePlaceableB", "../assets/sprites/tiles/tilePlaceableB.png");
+    this.load.image("tilePlaceableA", "assets/sprites/tiles/tilePlaceableA.png");
+    this.load.image("tilePlaceableB", "assets/sprites/tiles/tilePlaceableB.png");
 
-    this.load.image("tileTrackCrossA", "../assets/sprites/tiles/tileTrackCrosszA.png");
-    this.load.image("tileTrackCrossB", "../assets/sprites/tiles/tileTrackCrossB.png");
+    this.load.image("tileTrackCrossA", "assets/sprites/tiles/tileTrackCrosszA.png");
+    this.load.image("tileTrackCrossB", "assets/sprites/tiles/tileTrackCrossB.png");
 
-    this.load.image("tileTrackCurveA", "../assets/sprites/tiles/tileTrackCurveA.png");
-    this.load.image("tileTrackCurveB", "../assets/sprites/tiles/tileTrackCurveB.png");
+    this.load.image("tileTrackCurveA", "assets/sprites/tiles/tileTrackCurveA.png");
+    this.load.image("tileTrackCurveB", "assets/sprites/tiles/tileTrackCurveB.png");
 
-    this.load.image("tileTrackStraightA", "../assets/sprites/tiles/tileTrackStraightA.png");
-    this.load.image("tileTrackStraightB", "../assets/sprites/tiles/tileTrackStraightB.png");
+    this.load.image("tileTrackStraightA", "assets/sprites/tiles/tileTrackStraightA.png");
+    this.load.image("tileTrackStraightB", "assets/sprites/tiles/tileTrackStraightB.png");
 
     // buildables
     //this.load.image("solarPanel", "../assets/sprites/buildables/solarpanel.png");
-    this.load.spritesheet(SPRITE_SOLAR_PANEL_KEY, "../assets/sprites/buildables/solarpanel.png", {frameWidth:128, frameHeight:128, startFrame:0, endFrame:2});
-    this.load.spritesheet(SPRITE_BASIC_TURRET_KEY, "../assets/sprites/buildables/turret_sheet.png", {frameWidth:68, frameHeight:128, startFrame:0, endFrame:8});
-    this.load.image(SPRITE_HOLOFENCE_KEY, "../assets/sprites/buildables/holofence.png");
-    this.load.image(SPRITE_SHIELD_GENERATOR_KEY, "../assets/sprites/buildables/shieldGenerator.png");
+    this.load.spritesheet(SPRITE_SOLAR_PANEL_KEY, "assets/sprites/buildables/solarpanel.png", {frameWidth:128, frameHeight:128, startFrame:0, endFrame:2});
+    this.load.spritesheet(SPRITE_BASIC_TURRET_KEY, "assets/sprites/buildables/turret_sheet.png", {frameWidth:68, frameHeight:128, startFrame:0, endFrame:8});
+    this.load.image(SPRITE_HOLOFENCE_KEY, "assets/sprites/buildables/holofence.png");
+    this.load.image(SPRITE_SHIELD_GENERATOR_KEY, "assets/sprites/buildables/shieldGenerator.png");
     
     // enemies
-    this.load.spritesheet(ENEMIES_BASIC_ENEMY, "../assets/sprites/enemies/basicufo.png", {frameWidth:128, frameHeight:128, startFrame:0, endFrame:2});
+    this.load.spritesheet(ENEMIES_BASIC_ENEMY, "assets/sprites/enemies/basicufo.png", {frameWidth:128, frameHeight:128, startFrame:0, endFrame:2});
     
     // other
-    this.load.image(SPRITE_ENERGY_KEY, "../assets/sprites/energy.png");
-    this.load.image(SPRITE_BULLET_KEY, "../assets/sprites/bullet.png");
-    this.load.image(SPRITE_AREA_KEY, "../assets/sprites/area.png");
+    this.load.image(SPRITE_ENERGY_KEY, "assets/sprites/energy.png");
+    this.load.image(SPRITE_BULLET_KEY, "assets/sprites/bullet.png");
+    this.load.image(SPRITE_AREA_KEY, "assets/sprites/area.png");
 }
 
 function _update(time, delta)
